@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignite by Soulix - Transform Your Future</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #0a0e27;
+            color: white;
+        }
+
+        /* Animated Blue Background */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(45deg, #0a0e27, #1a237e, #0d47a1, #01579b);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-100px) translateX(50px); }
+            50% { transform: translateY(-200px) translateX(-50px); }
+            75% { transform: translateY(-100px) translateX(100px); }
+        }
+
+        .particle:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 60px; height: 60px; top: 60%; left: 80%; animation-delay: 3s; }
+        .particle:nth-child(3) { width: 100px; height: 100px; top: 80%; left: 10%; animation-delay: 6s; }
+        .particle:nth-child(4) { width: 40px; height: 40px; top: 30%; left: 70%; animation-delay: 9s; }
+        .particle:nth-child(5) { width: 70px; height: 70px; top: 50%; left: 40%; animation-delay: 12s; }
+
+        /* Main Container */
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Hero Content */
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-container {
+            margin-bottom: 30px;
+            animation: scaleIn 1s ease-out 0.3s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .logo {
+            font-size: 5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #42a5f5, #64b5f6, #90caf9, #42a5f5);
+            background-size: 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s infinite;
+            text-shadow: 0 0 40px rgba(66, 165, 245, 0.5);
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .tagline {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #90caf9;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .main-title {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease-out 0.9s both;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #b3d9ff;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            animation: fadeInUp 1s ease-out 1.2s both;
+        }
+
+        /* Event Date Card */
+        .event-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px 50px;
+            margin: 40px 0;
+            display: inline-block;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite, fadeInUp 1s ease-out 1.5s both;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 25px 70px rgba(66, 165, 245, 0.5);
+            }
+        }
+
+        .event-date {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .event-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        /* Countdown */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 1.8s both;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px 30px;
+            border-radius: 15px;
+            min-width: 120px;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .countdown-item:hover {
+            transform: translateY(-10px);
+            background: rgba(66, 165, 245, 0.2);
+        }
+
+        .countdown-number {
+            font-size: 3em;
+            font-weight: bold;
+            display: block;
+            color: #64b5f6;
+        }
+
+        .countdown-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            padding: 20px 60px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #0a0e27;
+            background: linear-gradient(45deg, #42a5f5, #64b5f6);
+            border: none;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 10px 40px rgba(66, 165, 245, 0.4);
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out 2.1s both;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(66, 165, 245, 0.6);
+        }
+
+        /* Features Preview */
+        .features-preview {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 2.4s both;
+        }
+
+        .feature-preview {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px 35px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-preview:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-10px);
+            border-color: rgba(66, 165, 245, 0.5);
+        }
+
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .feature-text {
+            font-size: 1.1em;
+            color: #b3d9ff;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-20px); }
+            60% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .scroll-indicator span {
+            font-size: 2em;
+            color: #64b5f6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3em;
+            }
+
+            .main-title {
+                font-size: 2em;
+            }
+
+            .tagline {
+                font-size: 1.3em;
+            }
+
+            .subtitle {
+                font-size: 1.1em;
+            }
+
+            .event-date {
+                font-size: 1.5em;
+            }
+
+            .cta-button {
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+
+            .countdown {
+                gap: 15px;
+            }
+
+            .countdown-item {
+                padding: 15px 20px;
+                min-width: 90px;
+            }
+
+            .countdown-number {
+                font-size: 2em;
+            }
+
+            .features-preview {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-background">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="container">
+        <div class="hero-content">
+            <div class="logo-container">
+                <div class="logo">🔥 IGNITE</div>
+            </div>
+            
+            <div class="tagline">by Soulix</div>
+            
+            <h1 class="main-title">Transform Your Future with Excellence</h1>
+            
+            <p class="subtitle">
+                Join the ultimate educational learning program designed to empower students 
+                with cutting-edge skills and knowledge for tomorrow's world
+            </p>
+
+            <div class="event-card">
+                <span class="event-icon">📅</span>
+                <span class="event-date">Launch: December 6, 2025</span>
+            </div>
+
+            <div class="countdown">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Days</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Hours</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutes</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Seconds</span>
+                </div>
+            </div>
+
+            <a href="index.html" class="cta-button">
+                🚀 Explore Courses
+            </a>
+
+            <div class="features-preview">
+                <div class="feature-preview">
+                    <div class="feature-icon">💡</div>
+                    <div class="feature-text">Expert-Led</div>
+                </div>
+                <div class="feature-preview">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">Job-Ready Skills</div>
+                </div>
+                <div class="feature-preview">
+                    <div class="feature-icon">🏆</div>
+                    <div class="feature-text">Certified</div>
+                </div>
+                <div class="feature-preview">
+                    <div class="feature-icon">🤝</div>
+                    <div class="feature-text">Supportive Community</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <span>⬇</span>
+        </div>
+    </div>
+
+    <script>
+        // Countdown Timer
+        function updateCountdown() {
+            const eventDate = new Date('2025-12-06T00:00:00').getTime();
+            const now = new Date().getTime();
+            const distance = eventDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+
+            if (distance < 0) {
+                document.getElementById('days').textContent = '00';
+                document.getElementById('hours').textContent = '00';
+                document.getElementById('minutes').textContent = '00';
+                document.getElementById('seconds').textContent = '00';
+            }
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>

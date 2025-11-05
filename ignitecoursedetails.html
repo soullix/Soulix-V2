@@ -4,23 +4,246 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Ignite Course Program by Soulix - Master programming from zero-to-hired with C, Web Development, IoT, and Python courses" />
-  <meta name="theme-color" content="#000000" />
   <title>Ignite Courses – Soulix</title>
-  
-  <!-- Preconnect to external domains for performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="dns-prefetch" href="https://cdn.pixabay.com">
-  <link rel="dns-prefetch" href="https://forms.visme.co">
-  
-  <!-- Preload critical CSS -->
-  <link rel="preload" href="dist/output.css" as="style">
-  
-  <!-- Production Tailwind CSS (built and minified - 9KB) -->
-  <link rel="stylesheet" href="dist/output.css">
-  
-  <!-- Google Fonts with display swap for performance -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: #000; 
+      color: #E2E8F0; 
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Glass / 3D card */
+    .course-card {
+      background: rgba(30, 41, 59, 0.25);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 24px;
+      backdrop-filter: blur(12px);
+      transition: all 0.4s ease;
+      transform-style: preserve-3d;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .course-card:hover {
+      transform: rotateY(12deg) scale(1.05);
+      border-color: #38BDF8;
+      box-shadow: 0 8px 30px rgba(56, 189, 248, 0.6);
+    }
+    
+    /* spotlight */
+    .course-card::before {
+      content: '';
+      position: absolute;
+      top: 0; 
+      left: -120%;
+      width: 60%; 
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: skewX(-30deg);
+      transition: left 0.7s ease;
+      pointer-events: none;
+    }
+    
+    .course-card:hover::before { 
+      left: 140%; 
+    }
+
+    /* Button Neon Glow */
+    .glow-btn {
+      background-image: linear-gradient(90deg, #2563EB, #38BDF8);
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.6);
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+    
+    .glow-btn:hover { 
+      transform: scale(1.08); 
+      box-shadow: 0 0 35px rgba(56, 189, 248, 1); 
+    }
+
+    .glow-btn:focus {
+      outline: 2px solid #38BDF8;
+      outline-offset: 2px;
+    }
+
+    /* FLIP CARD ANIMATION */
+    .flip-card { 
+      perspective: 1200px; 
+      width: 100%; 
+      touch-action: manipulation; 
+    }
+    
+    .flip-inner { 
+      position: relative; 
+      min-height: 260px; 
+      transition: none;
+      transform-style: flat; 
+    }
+    
+    .flip-card:hover .flip-inner { 
+      transform: none;
+    }
+    
+    .flip-front, .flip-back { 
+      position: absolute; 
+      inset: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .flip-front {
+      visibility: visible;
+      opacity: 1;
+      z-index: 2;
+    }
+    
+    .flip-back { 
+      visibility: hidden;
+      opacity: 0;
+      z-index: 1;
+    }
+    
+    .flip-card:hover .flip-front,
+    .flip-card.tap-flipped .flip-front {
+      visibility: hidden;
+      opacity: 0;
+      z-index: 1;
+    }
+    
+    .flip-card:hover .flip-back,
+    .flip-card.tap-flipped .flip-back {
+      visibility: visible;
+      opacity: 1;
+      z-index: 2;
+    }
+      opacity: 1;
+      transition: visibility 0s 0s, opacity 0.4s;
+    }
+
+    /* Hover click sound */
+    .flip-card:hover { 
+      cursor: pointer; 
+    }
+
+    /* MOBILE FIX — full width + tap flip */
+    @media (max-width: 768px) {
+      .flip-inner { 
+        transform: none !important; 
+      }
+      
+      .flip-card.tap-flipped .flip-inner { 
+        transform: none !important;
+      }
+
+      .course-card:hover {
+        transform: scale(1.02);
+      }
+    }
+
+    /* STARFIELD ANIM */
+    @keyframes move {
+      from { 
+        transform: translateY(-100vh); 
+      }
+      to { 
+        transform: translateY(100vh); 
+      }
+    }
+
+    /* Accessibility improvements */
+    a:focus,
+    button:focus {
+      outline: 2px solid #38BDF8;
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Modal Overlay Styles - Full Screen */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      z-index: 9999;
+      overflow-y: auto;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      display: block;
+    }
+
+    .modal-content {
+      background: white;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .modal-close {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #EF4444;
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 28px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6);
+    }
+
+    .modal-close:hover {
+      background: #DC2626;
+      transform: scale(1.1) rotate(90deg);
+    }
+
+    .modal-close:focus {
+      outline: 3px solid #38BDF8;
+      outline-offset: 2px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .modal-close {
+        width: 45px;
+        height: 45px;
+        top: 15px;
+        right: 15px;
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -28,36 +251,10 @@
 <div id="starfield" class="fixed inset-0 -z-10" role="presentation" aria-hidden="true"></div>
 <script>
   (function makeStars() {
-    // Early return if container missing
     const starfield = document.getElementById('starfield');
     if (!starfield) return;
     
-    // Check for reduced motion preference - skip animations entirely
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-    
-    // Adaptive star count based on viewport size and device capability
-    const viewportWidth = window.innerWidth;
-    const isMobile = viewportWidth < 768;
-    const isSmallDevice = viewportWidth < 480;
-    
-    // Progressive star count: very small devices get minimal stars, tablets get moderate, desktop gets full
-    let starCount;
-    if (isSmallDevice) {
-      // Very small devices (< 480px): skip starfield entirely for performance
-      return;
-    } else if (isMobile) {
-      // Mobile/tablet (480-767px): reduced star count
-      starCount = 50;
-    } else if (viewportWidth < 1280) {
-      // Small desktop (768-1279px): moderate star count
-      starCount = 100;
-    } else {
-      // Large desktop (≥1280px): full star count
-      starCount = 180;
-    }
-    
-    // Create stars in DocumentFragment to minimize reflows (single append)
+    const starCount = 180;
     const fragment = document.createDocumentFragment();
     
     for (let i = 0; i < starCount; i++) {
@@ -70,22 +267,12 @@
       star.style.top = Math.random() * 100 + 'vh';
       star.style.left = Math.random() * 100 + 'vw';
       star.style.opacity = Math.random().toString();
-      
-      // Randomized animation duration for natural effect
       const duration = Math.random() * 40 + 20;
       star.style.animation = `move ${duration}s linear infinite`;
       star.setAttribute('aria-hidden', 'true');
-      
-      // On mobile, use slower animations to reduce CPU usage
-      if (isMobile) {
-        star.style.animationTimingFunction = 'linear';
-        star.style.willChange = 'auto'; // Don't force GPU compositing on mobile
-      }
-      
       fragment.appendChild(star);
     }
     
-    // Single DOM append - minimizes reflow/repaint cost
     starfield.appendChild(fragment);
   })();
 </script>
@@ -121,8 +308,100 @@
   </header>
 
   <!-- COURSE CARDS -->
-  <section id="courseCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" aria-label="Course offerings">
-    <!-- Course cards will be dynamically generated by JavaScript -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" aria-label="Course offerings">
+
+    <!-- Web Development -->
+    <article class="flip-card">
+      <div class="flip-inner course-card p-6 space-y-4">
+        <div class="flip-front p-6 space-y-4">
+          <h2 class="text-xl font-semibold text-indigo-300">Web Development</h2>
+          <p class="text-gray-300 text-sm">Website + UI + Tailwind + Responsive + Deployment.</p>
+          <p class="text-sm text-gray-400">⏳ Duration: 4 Weeks • Weekend</p>
+          <p class="text-sm text-green-400 font-bold">💰 Price: ₹199</p>
+        </div>
+        <div class="flip-back flex flex-col justify-center items-center text-center p-4 space-y-2">
+          <h3 class="text-base font-bold text-indigo-300">Web Development</h3>
+          <p class="text-white text-xs">Build portfolio website + deploy to web.</p>
+          <p class="text-gray-300 text-xs font-semibold">What You'll Learn:</p>
+          <p class="text-gray-300 text-xs">✓ HTML5 & CSS3 Fundamentals</p>
+          <p class="text-gray-300 text-xs">✓ Tailwind CSS Framework</p>
+          <p class="text-gray-300 text-xs">✓ Responsive Design</p>
+          <p class="text-gray-300 text-xs">✓ JavaScript Basics</p>
+          <p class="text-gray-300 text-xs">✓ Deployment & Hosting</p>
+          <p class="text-yellow-300 text-xs mt-2">🕒 Sat: 7-9 PM | Sun: 10-12 AM</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- IoT -->
+    <article class="flip-card">
+      <div class="flip-inner course-card p-6 space-y-4">
+        <div class="flip-front p-6 space-y-4">
+          <h2 class="text-xl font-semibold text-teal-300">IoT & ESP32</h2>
+          <p class="text-gray-300 text-sm">Sensors + ESP32 + Firebase + real-time device control.</p>
+          <p class="text-sm text-gray-400">⏳ Duration: 3 Weeks • Weekend</p>
+          <p class="text-sm text-green-400 font-bold">💰 Price: ₹295</p>
+        </div>
+        <div class="flip-back flex flex-col justify-center items-center text-center p-4 space-y-2">
+          <h3 class="text-base font-bold text-teal-300">IoT & ESP32</h3>
+          <p class="text-white text-xs">Home automation + Cloud dashboard.</p>
+          <p class="text-gray-300 text-xs font-semibold">What You'll Learn:</p>
+          <p class="text-gray-300 text-xs">✓ ESP32 Microcontroller</p>
+          <p class="text-gray-300 text-xs">✓ Sensors & Actuators</p>
+          <p class="text-gray-300 text-xs">✓ Firebase Integration</p>
+          <p class="text-gray-300 text-xs">✓ Real-time Control</p>
+          <p class="text-gray-300 text-xs">✓ IoT Project Building</p>
+          <p class="text-yellow-300 text-xs mt-2">🕒 Sat: 7-9 PM | Sun: 10-12 AM</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- C Programming -->
+    <article class="flip-card">
+      <div class="flip-inner course-card p-6 space-y-4">
+        <div class="flip-front p-6 space-y-4">
+          <h2 class="text-xl font-semibold text-cyan-300">C Programming</h2>
+          <p class="text-gray-300 text-sm">Learn Memory, Pointers, Logic building. Strong foundation for Embedded + Systems.</p>
+          <p class="text-sm text-gray-400">⏳ Duration: 3 Weeks • Weekend</p>
+          <p class="text-sm text-green-400 font-bold">💰 Price: ₹199</p>
+        </div>
+        <div class="flip-back flex flex-col justify-center items-center text-center p-4 space-y-2">
+          <h3 class="text-base font-bold text-cyan-300">C Programming</h3>
+          <p class="text-white text-xs">5 mini projects + certificate.</p>
+          <p class="text-gray-300 text-xs font-semibold">What You'll Learn:</p>
+          <p class="text-gray-300 text-xs">✓ C Language Fundamentals</p>
+          <p class="text-gray-300 text-xs">✓ Memory Management</p>
+          <p class="text-gray-300 text-xs">✓ Pointers & Arrays</p>
+          <p class="text-gray-300 text-xs">✓ Logic Building</p>
+          <p class="text-gray-300 text-xs">✓ Embedded Systems Basics</p>
+          <p class="text-yellow-300 text-xs mt-2">🕒 Sat: 7-9 PM | Sun: 10-12 AM</p>
+        </div>
+      </div>
+    </article>
+
+    <!-- Python -->
+    <article class="flip-card">
+      <div class="flip-inner course-card p-6 space-y-4">
+        <div class="flip-front p-6 space-y-4">
+          <h2 class="text-xl font-semibold text-pink-300">Python Programming</h2>
+          <p class="text-gray-300 text-sm">Python + Projects + Automation + Real-world logic.</p>
+          <p class="text-sm text-gray-400">⏳ Duration: 4 Weeks • Weekend</p>
+          <p class="text-sm text-green-400 font-bold">💰 Price: ₹299</p>
+        </div>
+        <div class="flip-back flex flex-col justify-center items-center text-center p-4 space-y-2">
+          <h3 class="text-base font-bold text-pink-300">Python Programming</h3>
+          <p class="text-white text-xs">Automation scripts & real-world projects.</p>
+          <p class="text-gray-300 text-xs font-semibold">What You'll Learn:</p>
+          <p class="text-gray-300 text-xs">✓ Python Syntax & Basics</p>
+          <p class="text-gray-300 text-xs">✓ Data Structures</p>
+          <p class="text-gray-300 text-xs">✓ Automation Scripts</p>
+          <p class="text-gray-300 text-xs">✓ File Handling</p>
+          <p class="text-gray-300 text-xs">✓ Real-world Projects</p>
+          <p class="text-yellow-300 text-xs mt-2">🕒 Sat: 7-9 PM | Sun: 10-12 AM</p>
+        </div>
+      </div>
+    </article>
+
   </section>
 
   <!-- CTA SECTION -->
@@ -136,289 +415,171 @@
 
 </div>
 
+<!-- MODAL OVERLAY FOR FORM - FULL SCREEN -->
+<div id="formModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <button type="button" class="modal-close" id="closeModal" aria-label="Close enrollment form">&times;</button>
+  <div class="modal-content">
+    <!-- Visme Form will be loaded here in full page mode -->
+    <div id="vismeFormContainer"></div>
+  </div>
+</div>
+
 <!-- Audio element for interaction sound -->
 <audio id="hoverSound" preload="none" aria-hidden="true">
-  <!-- Primary source from CDN -->
   <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_7cd80f7464.mp3?filename=ui-click-136138.mp3" type="audio/mpeg">
-  <!-- Fallback to local file if CDN fails -->
-  <source src="assets/ui-click.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
 
-<!-- Sound Toggle Button -->
-<button type="button" 
-        id="soundToggle" 
-        class="sound-toggle" 
-        aria-label="Toggle sound effects on and off"
-        aria-pressed="true"
-        title="Sound: On">
-  🔊
-</button>
-
 <script>
-  // Course data configuration
-  const ENROLLMENT_FORM_URL = 'https://forms.visme.co/formsPlayer/x9mk9v8n-untitled-project';
-  const FALLBACK_EMAIL = 'mailto:contact@soulix.com?subject=Course%20Enrollment%20Inquiry';
-  
-  const COURSES = [
-    {
-      title: 'Web Development',
-      color: 'indigo-300',
-      description: 'Website + UI + Tailwind + Responsive + Deployment.',
-      duration: '4 Weeks',
-      price: '₹199',
-      benefit: 'Build portfolio website + deploy to web.',
-      learningPoints: [
-        'HTML5 & CSS3 Fundamentals',
-        'Tailwind CSS Framework',
-        'Responsive Design',
-        'JavaScript Basics',
-        'Deployment & Hosting'
-      ],
-      timing: 'Sat: 7-9 PM | Sun: 10-12 AM'
-    },
-    {
-      title: 'IoT & ESP32',
-      color: 'teal-300',
-      description: 'Sensors + ESP32 + Firebase + real-time device control.',
-      duration: '3 Weeks',
-      price: '₹295',
-      benefit: 'Home automation + Cloud dashboard.',
-      learningPoints: [
-        'ESP32 Microcontroller',
-        'Sensors & Actuators',
-        'Firebase Integration',
-        'Real-time Control',
-        'IoT Project Building'
-      ],
-      timing: 'Sat: 7-9 PM | Sun: 10-12 AM'
-    },
-    {
-      title: 'C Programming',
-      color: 'cyan-300',
-      description: 'Learn Memory, Pointers, Logic building. Strong foundation for Embedded + Systems.',
-      duration: '3 Weeks',
-      price: '₹199',
-      benefit: '5 mini projects + certificate.',
-      learningPoints: [
-        'C Language Fundamentals',
-        'Memory Management',
-        'Pointers & Arrays',
-        'Logic Building',
-        'Embedded Systems Basics'
-      ],
-      timing: 'Sat: 7-9 PM | Sun: 10-12 AM'
-    },
-    {
-      title: 'Python Programming',
-      color: 'pink-300',
-      description: 'Python + Projects + Automation + Real-world logic.',
-      duration: '4 Weeks',
-      price: '₹299',
-      benefit: 'Automation scripts & real-world projects.',
-      learningPoints: [
-        'Python Syntax & Basics',
-        'Data Structures',
-        'Automation Scripts',
-        'File Handling',
-        'Real-world Projects'
-      ],
-      timing: 'Sat: 7-9 PM | Sun: 10-12 AM'
-    }
-  ];
-
-  // HTML sanitization
-  function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  // Generate course card HTML
-  function generateCourseCard(course) {
-    const safe = {
-      title: escapeHtml(course.title),
-      description: escapeHtml(course.description),
-      duration: escapeHtml(course.duration),
-      price: escapeHtml(course.price),
-      benefit: escapeHtml(course.benefit),
-      timing: escapeHtml(course.timing),
-      color: escapeHtml(course.color)
-    };
-    
-    const learningPoints = course.learningPoints
-      .map(point => '<p class="text-gray-300 text-xs">✓ ' + escapeHtml(point) + '</p>')
-      .join('');
-    
-    return '<article class="flip-card">' +
-      '<div class="flip-inner course-card p-6 space-y-4">' +
-        '<div class="flip-front p-6 space-y-4">' +
-          '<h2 class="text-xl font-semibold text-' + safe.color + '">' + safe.title + '</h2>' +
-          '<p class="text-gray-300 text-sm">' + safe.description + '</p>' +
-          '<p class="text-sm text-gray-400">⏳ Duration: ' + safe.duration + ' • Weekend</p>' +
-          '<p class="text-sm text-green-400 font-bold">💰 Price: ' + safe.price + '</p>' +
-        '</div>' +
-        '<div class="flip-back flex flex-col justify-center items-center text-center p-4 space-y-2">' +
-          '<h3 class="text-base font-bold text-' + safe.color + '">' + safe.title + '</h3>' +
-          '<p class="text-white text-xs">' + safe.benefit + '</p>' +
-          '<p class="text-gray-300 text-xs font-semibold">What You\'ll Learn:</p>' +
-          learningPoints +
-          '<p class="text-yellow-300 text-xs mt-2">🕒 ' + safe.timing + '</p>' +
-        '</div>' +
-      '</div>' +
-    '</article>';
-  }
-
-  // Render course cards
-  (function() {
-    const container = document.getElementById('courseCardsContainer');
-    if (container) {
-      container.innerHTML = COURSES.map(generateCourseCard).join('');
-    }
-  })();
-
-  // Card interactions + sound
-  (function() {
+  // Single declaration of cards + sound (fixes duplicate identifier error)
+  (function initializeCardInteractions() {
     const cards = document.querySelectorAll('.flip-card');
     const sound = document.getElementById('hoverSound');
-    const soundToggle = document.getElementById('soundToggle');
     
-    if (!cards.length || !sound || !soundToggle) return;
-
-    let soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
-    let lastPlayTime = 0;
-    const COOLDOWN = 250;
-
-    function updateSoundUI() {
-      soundToggle.textContent = soundEnabled ? '🔊' : '�';
-      soundToggle.className = 'sound-toggle' + (soundEnabled ? '' : ' muted');
-      soundToggle.setAttribute('aria-pressed', soundEnabled);
-      soundToggle.title = 'Sound: ' + (soundEnabled ? 'On' : 'Off');
-    }
+    if (!cards.length || !sound) return;
 
     function playSound() {
-      if (!soundEnabled || Date.now() - lastPlayTime < COOLDOWN) return;
-      lastPlayTime = Date.now();
-      
       try {
         sound.currentTime = 0;
-        const promise = sound.play();
-        if (promise) promise.catch(() => {});
-      } catch (e) {}
+        sound.play().catch(function(error) {
+          // Silently handle autoplay restrictions
+          console.debug('Audio play prevented:', error);
+        });
+      } catch (error) {
+        console.debug('Audio error:', error);
+      }
     }
 
-    soundToggle.onclick = function(e) {
-      e.stopPropagation();
-      soundEnabled = !soundEnabled;
-      localStorage.setItem('soundEnabled', soundEnabled);
-      updateSoundUI();
-      if (soundEnabled) playSound();
-    };
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    updateSoundUI();
-
-    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-    cards.forEach(function(card) {
+    cards.forEach(function(card, index) {
+      // Store timer on the card element itself
       card.flipTimer = null;
       
-      if (!isTouch) {
-        card.onmouseenter = playSound;
+      // Hover sound on desktop
+      if (!isTouchDevice) {
+        card.addEventListener('mouseenter', playSound);
       }
 
-      card.onclick = function() {
-        if (!isTouch) return;
-        
-        const front = card.querySelector('.flip-front');
-        const back = card.querySelector('.flip-back');
-        const isFlipped = card.classList.contains('tap-flipped');
-        
-        if (!isFlipped) {
-          playSound();
-          
-          front.style.cssText = 'opacity:0;visibility:hidden;z-index:1';
-          back.style.cssText = 'opacity:1;visibility:visible;z-index:2';
-          card.classList.add('tap-flipped');
-          
-          clearTimeout(card.flipTimer);
-          card.flipTimer = setTimeout(function() {
-            front.style.cssText = 'opacity:1;visibility:visible;z-index:2';
-            back.style.cssText = 'opacity:0;visibility:hidden;z-index:1';
-            card.classList.remove('tap-flipped');
-          }, 3000);
-        }
-      };
-
-      card.tabIndex = 0;
-      card.onkeydown = function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
+      // Tap flip + sound on mobile with auto flip back
+      card.addEventListener('click', function(event) {
+        if (isTouchDevice) {
           const front = card.querySelector('.flip-front');
           const back = card.querySelector('.flip-back');
-          const isFlipped = card.classList.contains('tap-flipped');
           
-          if (!isFlipped) {
-            playSound();
-            front.style.cssText = 'opacity:0;visibility:hidden;z-index:1';
-            back.style.cssText = 'opacity:1;visibility:visible;z-index:2';
+          // Check if currently showing back
+          const isShowingBack = (back && back.style.opacity === '1') || card.classList.contains('tap-flipped');
+          
+          if (!isShowingBack) {
+            // Show back, hide front
+            if (front) {
+              front.style.opacity = '0';
+              front.style.visibility = 'hidden';
+              front.style.zIndex = '1';
+            }
+            if (back) {
+              back.style.opacity = '1';
+              back.style.visibility = 'visible';
+              back.style.zIndex = '2';
+            }
+            
             card.classList.add('tap-flipped');
-            clearTimeout(card.flipTimer);
+            playSound();
+            
+            // Clear existing timer
+            if (card.flipTimer) {
+              clearTimeout(card.flipTimer);
+              card.flipTimer = null;
+            }
+            
+            // Auto flip back after 3 seconds
             card.flipTimer = setTimeout(function() {
-              front.style.cssText = 'opacity:1;visibility:visible;z-index:2';
-              back.style.cssText = 'opacity:0;visibility:hidden;z-index:1';
+              // Show front, hide back
+              if (front) {
+                front.style.opacity = '1';
+                front.style.visibility = 'visible';
+                front.style.zIndex = '2';
+              }
+              if (back) {
+                back.style.opacity = '0';
+                back.style.visibility = 'hidden';
+                back.style.zIndex = '1';
+              }
+              
               card.classList.remove('tap-flipped');
-            }, 5000);
-          } else {
-            // Allow keyboard users to manually flip back
-            front.style.cssText = 'opacity:1;visibility:visible;z-index:2';
-            back.style.cssText = 'opacity:0;visibility:hidden;z-index:1';
-            card.classList.remove('tap-flipped');
-            clearTimeout(card.flipTimer);
+              card.flipTimer = null;
+            }, 3000);
           }
         }
-      };
+      });
+
+      // Keyboard accessibility with auto flip back
+      card.setAttribute('tabindex', '0');
+      card.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          
+          const isCurrentlyFlipped = card.classList.contains('tap-flipped');
+          
+          if (!isCurrentlyFlipped) {
+            card.classList.add('tap-flipped');
+            playSound();
+            
+            // Clear existing timer for THIS card
+            if (card.flipTimer) {
+              clearTimeout(card.flipTimer);
+              card.flipTimer = null;
+            }
+            
+            card.flipTimer = setTimeout(function() {
+              card.classList.remove('tap-flipped');
+              card.offsetHeight;
+              card.flipTimer = null;
+            }, 3000);
+          }
+        }
+      });
     });
   })();
 
-  // Form redirect
-  (function() {
-    document.querySelectorAll('.open-form-btn').forEach(function(btn) {
-      btn.onclick = function(e) {
-        e.stopPropagation();
+  // Form button functionality - Redirect with loading screen
+  (function initializeFormButtons() {
+    const openBtns = document.querySelectorAll('.open-form-btn');
+    
+    // Visme form URL
+    const formUrl = 'https://forms.visme.co/formsPlayer/x9mk9v8n-untitled-project';
+
+    openBtns.forEach(function(btn) {
+      btn.addEventListener('click', function(event) {
+        event.stopPropagation();
         
-        const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#000,#1a1a2e);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center';
+        // Create loading overlay
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #000000, #1a1a2e); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center;';
         
+        // Loading spinner
         const spinner = document.createElement('div');
-        spinner.style.cssText = 'border:4px solid rgba(56,189,248,0.3);border-top:4px solid #38BDF8;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite';
+        spinner.style.cssText = 'border: 4px solid rgba(56, 189, 248, 0.3); border-top: 4px solid #38BDF8; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite;';
         
-        const text = document.createElement('p');
-        text.textContent = 'Loading Enrollment Form...';
-        text.style.cssText = 'color:#38BDF8;font-size:20px;margin-top:20px;font-family:Outfit,sans-serif';
+        // Loading text
+        const loadingText = document.createElement('p');
+        loadingText.textContent = 'Loading Enrollment Form...';
+        loadingText.style.cssText = 'color: #38BDF8; font-size: 20px; margin-top: 20px; font-family: Outfit, sans-serif;';
         
+        // Add spinner animation
         const style = document.createElement('style');
-        style.textContent = '@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';
-        
+        style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
         document.head.appendChild(style);
-        overlay.appendChild(spinner);
-        overlay.appendChild(text);
-        document.body.appendChild(overlay);
         
-        const timeout = setTimeout(function() {
-          text.textContent = 'Form loading slowly. Click to email instead.';
-          overlay.style.cursor = 'pointer';
-          overlay.onclick = function() { window.location.href = FALLBACK_EMAIL; };
-        }, 5000);
+        loadingOverlay.appendChild(spinner);
+        loadingOverlay.appendChild(loadingText);
+        document.body.appendChild(loadingOverlay);
         
+        // Redirect after short delay to show loading screen
         setTimeout(function() {
-          clearTimeout(timeout);
-          try {
-            window.location.href = ENROLLMENT_FORM_URL;
-          } catch(e) {
-            window.location.href = FALLBACK_EMAIL;
-          }
+          window.location.href = formUrl;
         }, 500);
-      };
+      });
     });
   })();
 </script>

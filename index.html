@@ -793,9 +793,176 @@
             color: #90caf9;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .nav-logo {
+                font-size: 1.5em;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-link {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
+            }
+
             .hero {
                 padding: 40px 20px;
+            }
+
+            .logo {
+                font-size: 2.5em;
+            }
+
+            .tagline {
+                font-size: 1.3em;
+            }
+
+            .event-date {
+                font-size: 1em;
+                padding: 15px 25px;
+            }
+
+            .countdown {
+                gap: 10px;
+            }
+
+            .countdown-item {
+                padding: 15px;
+                min-width: 70px;
+            }
+
+            .countdown-number {
+                font-size: 1.8em;
+            }
+
+            .countdown-label {
+                font-size: 0.75em;
+            }
+
+            .content {
+                padding: 40px 15px;
+            }
+
+            .section-title {
+                font-size: 1.8em;
+            }
+
+            .description {
+                font-size: 1em;
+                padding: 0 10px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .feature-card {
+                padding: 25px;
+            }
+
+            .feature-icon {
+                font-size: 2.5em;
+            }
+
+            .feature-title {
+                font-size: 1.3em;
+            }
+
+            .courses-section, .team-section {
+                padding: 40px 15px;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .course-card {
+                margin: 0 auto;
+                max-width: 100%;
+            }
+
+            .course-header {
+                padding: 30px 20px;
+            }
+
+            .course-icon {
+                font-size: 3em;
+            }
+
+            .course-name {
+                font-size: 1.5em;
+            }
+
+            .course-body {
+                padding: 20px;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .team-avatar {
+                width: 140px;
+                height: 140px;
+                font-size: 3em;
+            }
+
+            .team-name {
+                font-size: 1.5em;
+            }
+
+            .team-role {
+                font-size: 1em;
+            }
+
+            .cta-section {
+                padding: 40px 20px;
+            }
+
+            .cta-section h2 {
+                font-size: 1.8em !important;
+            }
+
+            .cta-section p {
+                font-size: 1.1em !important;
+            }
+
+            .cta-button {
+                padding: 15px 35px;
+                font-size: 1.1em;
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+
+            .navbar {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            .hero {
+                padding: 30px 15px;
+                border-radius: 20px;
             }
 
             .logo {
@@ -803,11 +970,30 @@
             }
 
             .tagline {
-                font-size: 1.2em;
+                font-size: 1.1em;
             }
 
-            .content {
-                padding: 40px 20px;
+            .event-date {
+                font-size: 0.9em;
+                padding: 12px 20px;
+            }
+
+            .countdown {
+                gap: 8px;
+            }
+
+            .countdown-item {
+                padding: 10px;
+                min-width: 60px;
+                border-radius: 10px;
+            }
+
+            .countdown-number {
+                font-size: 1.5em;
+            }
+
+            .countdown-label {
+                font-size: 0.7em;
             }
 
             .section-title {
@@ -815,22 +1001,81 @@
             }
 
             .description {
-                font-size: 1em;
+                font-size: 0.95em;
             }
 
-            .courses-section, .team-section {
-                padding: 40px 20px;
+            .feature-card {
+                padding: 20px;
             }
 
-            .team-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 30px;
+            .course-header {
+                padding: 25px 15px;
+            }
+
+            .course-icon {
+                font-size: 2.5em;
+            }
+
+            .course-name {
+                font-size: 1.3em;
+            }
+
+            .course-duration {
+                font-size: 0.9em;
+            }
+
+            .course-body {
+                padding: 15px;
+            }
+
+            .course-description {
+                font-size: 0.95em;
+            }
+
+            .course-highlights li {
+                font-size: 0.9em;
+                padding: 8px 0;
             }
 
             .team-avatar {
                 width: 120px;
                 height: 120px;
                 font-size: 2.5em;
+            }
+
+            .team-name {
+                font-size: 1.3em;
+            }
+
+            .team-role {
+                font-size: 0.95em;
+            }
+
+            .team-description {
+                font-size: 0.9em;
+            }
+
+            .cta-section {
+                padding: 30px 15px;
+            }
+
+            .cta-section h2 {
+                font-size: 1.5em !important;
+            }
+
+            .cta-section p {
+                font-size: 1em !important;
+            }
+
+            .cta-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            /* Hide some background elements on very small screens for performance */
+            .nebula,
+            .planet {
+                display: none;
             }
         }
     </style>

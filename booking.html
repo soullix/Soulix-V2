@@ -347,21 +347,206 @@
                 padding: 20px;
             }
 
+            .nav-logo {
+                font-size: 1.5em;
+            }
+
             .nav-links {
                 flex-direction: column;
-                gap: 15px;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .nav-link {
+                width: 100%;
+                text-align: center;
+                padding: 12px;
             }
 
             .booking-container {
                 padding: 30px 20px;
+                border-radius: 20px;
             }
 
             .booking-title {
                 font-size: 2em;
             }
 
+            .booking-subtitle {
+                font-size: 1em;
+            }
+
+            .form-group {
+                margin-bottom: 25px;
+            }
+
+            label {
+                font-size: 1em;
+            }
+
+            input, select, textarea {
+                padding: 12px 15px;
+                font-size: 0.95em;
+            }
+
             .course-selection {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .course-option {
+                padding: 18px;
+            }
+
+            .course-icon {
+                font-size: 2em;
+            }
+
+            .course-name {
+                font-size: 0.95em;
+            }
+
+            .submit-btn {
+                padding: 18px;
+                font-size: 1.1em;
+            }
+
+            .success-message {
+                padding: 25px;
+                font-size: 1.1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 10px;
+            }
+
+            .navbar {
+                padding: 15px;
+                border-radius: 15px;
+            }
+
+            .nav-logo {
+                font-size: 1.3em;
+            }
+
+            .nav-links {
+                gap: 8px;
+            }
+
+            .nav-link {
+                padding: 10px;
+                font-size: 0.95em;
+            }
+
+            .booking-container {
+                padding: 25px 15px;
+                border-radius: 15px;
+            }
+
+            .booking-header {
+                margin-bottom: 30px;
+            }
+
+            .booking-title {
+                font-size: 1.6em;
+            }
+
+            .booking-subtitle {
+                font-size: 0.9em;
+                line-height: 1.5;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            label {
+                font-size: 0.95em;
+                margin-bottom: 8px;
+            }
+
+            input, select, textarea {
+                padding: 12px;
+                font-size: 0.9em;
+                border-radius: 12px;
+            }
+
+            textarea {
+                min-height: 100px;
+            }
+
+            .course-selection {
+                gap: 12px;
+            }
+
+            .course-option {
+                padding: 15px;
+                border-radius: 12px;
+            }
+
+            .course-icon {
+                font-size: 1.8em;
+                margin-bottom: 8px;
+            }
+
+            .course-name {
+                font-size: 0.9em;
+            }
+
+            .submit-btn {
+                padding: 15px;
+                font-size: 1em;
+                border-radius: 12px;
+            }
+
+            .success-message {
+                padding: 20px;
+                font-size: 1em;
+                border-radius: 12px;
+            }
+
+            /* Hide some particles on small screens */
+            .particle:nth-child(3),
+            .particle:nth-child(4) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .booking-container {
+                padding: 20px 12px;
+            }
+
+            .booking-title {
+                font-size: 1.4em;
+            }
+
+            .booking-subtitle {
+                font-size: 0.85em;
+            }
+
+            input, select, textarea {
+                padding: 10px;
+                font-size: 0.85em;
+            }
+
+            .course-option {
+                padding: 12px;
+            }
+
+            .course-icon {
+                font-size: 1.5em;
+            }
+
+            .course-name {
+                font-size: 0.85em;
+            }
+
+            .submit-btn {
+                padding: 12px;
+                font-size: 0.95em;
             }
         }
     </style>

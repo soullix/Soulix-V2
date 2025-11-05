@@ -318,46 +318,194 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
             .logo {
-                font-size: 3em;
+                font-size: 2.5em;
             }
 
             .main-title {
-                font-size: 2em;
+                font-size: 1.8em;
             }
 
             .tagline {
-                font-size: 1.3em;
+                font-size: 1.2em;
             }
 
             .subtitle {
-                font-size: 1.1em;
+                font-size: 1em;
+                padding: 0 10px;
             }
 
             .event-date {
+                font-size: 1.2em;
+                padding: 15px 30px;
+            }
+
+            .event-icon {
                 font-size: 1.5em;
             }
 
             .cta-button {
                 padding: 15px 40px;
                 font-size: 1.2em;
+                width: 90%;
+                max-width: 300px;
             }
 
             .countdown {
-                gap: 15px;
+                gap: 12px;
             }
 
             .countdown-item {
                 padding: 15px 20px;
-                min-width: 90px;
+                min-width: 80px;
             }
 
             .countdown-number {
                 font-size: 2em;
             }
 
+            .countdown-label {
+                font-size: 0.8em;
+            }
+
             .features-preview {
                 gap: 20px;
+                margin-top: 40px;
+            }
+
+            .feature-preview {
+                padding: 20px 25px;
+            }
+
+            .feature-icon {
+                font-size: 2em;
+            }
+
+            .feature-text {
+                font-size: 1em;
+            }
+
+            .scroll-indicator {
+                bottom: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px 10px;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            .main-title {
+                font-size: 1.5em;
+            }
+
+            .tagline {
+                font-size: 1em;
+            }
+
+            .subtitle {
+                font-size: 0.95em;
+            }
+
+            .event-card {
+                padding: 20px 30px;
+                margin: 30px 0;
+            }
+
+            .event-date {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+
+            .event-icon {
+                font-size: 1.2em;
+                margin-right: 8px;
+            }
+
+            .countdown {
+                gap: 8px;
+            }
+
+            .countdown-item {
+                padding: 12px 15px;
+                min-width: 65px;
+            }
+
+            .countdown-number {
+                font-size: 1.8em;
+            }
+
+            .countdown-label {
+                font-size: 0.75em;
+            }
+
+            .cta-button {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+
+            .features-preview {
+                gap: 15px;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .feature-preview {
+                padding: 18px 20px;
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .feature-icon {
+                font-size: 1.8em;
+                margin-bottom: 8px;
+            }
+
+            .feature-text {
+                font-size: 0.95em;
+            }
+
+            /* Hide particles on small screens for performance */
+            .particle:nth-child(3),
+            .particle:nth-child(4),
+            .particle:nth-child(5) {
+                display: none;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .logo {
+                font-size: 1.8em;
+            }
+
+            .main-title {
+                font-size: 1.3em;
+            }
+
+            .event-date {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+
+            .countdown-item {
+                padding: 10px 12px;
+                min-width: 55px;
+            }
+
+            .countdown-number {
+                font-size: 1.5em;
+            }
+
+            .countdown-label {
+                font-size: 0.7em;
             }
         }
     </style>

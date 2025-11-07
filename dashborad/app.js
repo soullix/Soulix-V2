@@ -7,22 +7,40 @@ let applications = [];
 let notifications = 0;
 
 // Initialize Dashboard
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // First, try to load from localStorage
     loadData();
     
     // Initialize Supabase
     const supabaseReady = initSupabase();
+    
     if (supabaseReady) {
-        // Load data from Supabase first
-        syncFromSupabase().then(() => {
-            updateAllStats();
-            renderApplications();
-            renderRecentApplications();
-            updateCharts();
-        });
+        // Check connection
+        const connectionStatus = await checkSupabaseConnection();
         
-        // Save login session to Supabase
-        saveLoginSessionToSupabase();
+        if (connectionStatus.connected) {
+            console.log('✅ Supabase connected successfully');
+            
+            // Load data from Supabase (this will override localStorage)
+            await syncFromSupabase();
+            
+            // Save login session to Supabase
+            await saveLoginSessionToSupabase();
+            
+            // Load and display logs from Supabase
+            const logs = await loadLogsFromSupabase(50);
+            if (logs && logs.length > 0) {
+                // Display logs from Supabase
+                logs.reverse().forEach(log => {
+                    addAdminLog(log.log_type, log.title, log.message, false);
+                });
+            }
+        } else {
+            console.warn('⚠️ Supabase not connected:', connectionStatus.error);
+            console.log('📦 Using localStorage only');
+        }
+    } else {
+        console.warn('⚠️ Supabase not initialized - using localStorage only');
     }
     
     // Log login session details (local)
@@ -35,15 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initBackToTop();
     initKeyboardShortcuts();
     initAdminLog();
-    
-    // Load logs from Supabase
-    if (supabaseReady) {
-        loadLogsFromSupabase(50).then(logs => {
-            logs.forEach(log => {
-                addAdminLog(log.log_type, log.title, log.message, false); // false = don't save to Supabase again
-            });
-        });
-    }
     
     updateAllStats();
     renderApplications();

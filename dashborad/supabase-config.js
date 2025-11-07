@@ -14,13 +14,15 @@ let realtimeChannel = null;
 // Initialize Supabase
 function initSupabase() {
     if (typeof window.supabase === 'undefined') {
-        console.error('Supabase client not loaded. Make sure to include the Supabase CDN script.');
+        console.error('❌ Supabase client not loaded. Make sure to include the Supabase CDN script.');
+        addAdminLog('warning', 'Supabase Not Available', 'Using localStorage only - data will not sync across devices');
         return false;
     }
     
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('✅ Supabase initialized successfully');
+        addAdminLog('success', '🔗 Supabase Connected', 'Real-time database active - data syncs across all devices');
         
         // Setup real-time subscription
         setupRealtimeSubscription();
@@ -28,6 +30,7 @@ function initSupabase() {
         return true;
     } catch (error) {
         console.error('❌ Error initializing Supabase:', error);
+        addAdminLog('error', 'Supabase Error', error.message);
         return false;
     }
 }

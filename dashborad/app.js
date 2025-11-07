@@ -299,6 +299,9 @@ function initDateTime() {
 
 // Update Stats
 function updateAllStats() {
+    // Reload data from localStorage to ensure sync
+    loadData();
+    
     const pending = applications.filter(app => app.status === 'Pending').length;
     const approved = applications.filter(app => app.status === 'Approved').length;
     const rejected = applications.filter(app => app.status === 'Rejected').length;
@@ -324,6 +327,9 @@ function updateAllStats() {
     
     // Update course stats
     updateCourseStats();
+    
+    // Store last update timestamp to prevent stale data
+    localStorage.setItem('lastStatsUpdate', Date.now().toString());
 }
 
 // Animate Number Change (Optimized)
@@ -665,12 +671,14 @@ function approveApplication(id) {
         showToast('success', 'Application Approved!', 
             `${app.name} approved!\n${paymentDetails}\nEmail & SMS sent.`);
         
-        // Update UI
-        updateAllStats();
-        renderApplications();
-        renderRecentApplications();
-        updateCharts();
-        addTooltips();
+        // Force immediate UI update
+        setTimeout(() => {
+            updateAllStats();
+            renderApplications();
+            renderRecentApplications();
+            updateCharts();
+            addTooltips();
+        }, 100);
     }
 }
 
@@ -727,11 +735,13 @@ function rejectApplicationWithReason(id, reason) {
     // Show toast
     showToast('error', 'Application Rejected', `${app.name}'s application has been rejected and notified.`);
     
-    // Update UI
-    updateAllStats();
-    renderApplications();
-    renderRecentApplications();
-    updateCharts();
+    // Force immediate UI update
+    setTimeout(() => {
+        updateAllStats();
+        renderApplications();
+        renderRecentApplications();
+        updateCharts();
+    }, 100);
 }
 
 // Notifications (Simulated Email/SMS)
@@ -797,21 +807,44 @@ function sendRejectionNotification(app) {
 }
 
 // Toast Notification
+let toastTimeout = null;
 function showToast(type, title, message) {
     const toast = document.getElementById('toast');
-    toast.className = `toast ${type}`;
-    toast.querySelector('.toast-title').textContent = title;
-    toast.querySelector('.toast-message').textContent = message;
-    toast.classList.add('show');
     
+    // Clear any existing timeout
+    if (toastTimeout) {
+        clearTimeout(toastTimeout);
+        toastTimeout = null;
+    }
+    
+    // Remove show class first to reset animation
+    toast.classList.remove('show');
+    
+    // Small delay to allow reset
     setTimeout(() => {
-        toast.classList.remove('show');
-    }, 5000);
+        toast.className = `toast ${type}`;
+        toast.querySelector('.toast-title').textContent = title;
+        toast.querySelector('.toast-message').textContent = message;
+        toast.classList.add('show');
+        
+        // Auto-dismiss after 4 seconds
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+            toastTimeout = null;
+        }, 4000);
+    }, 50);
 }
 
 function setupToastClose() {
     document.querySelector('.toast-close')?.addEventListener('click', function() {
-        document.getElementById('toast').classList.remove('show');
+        const toast = document.getElementById('toast');
+        toast.classList.remove('show');
+        
+        // Clear timeout when manually closed
+        if (toastTimeout) {
+            clearTimeout(toastTimeout);
+            toastTimeout = null;
+        }
     });
 }
 

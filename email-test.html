@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Test - SOULIX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+        
+        .test-section.approve {
+            border-left-color: #10b981;
+        }
+        
+        .test-section.reject {
+            border-left-color: #ef4444;
+        }
+        
+        .test-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.reject-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        button.reject-btn:hover {
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+            display: block;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+            display: block;
+        }
+        
+        .status.loading {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #3b82f6;
+            display: block;
+        }
+        
+        .info-box {
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #3730a3;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Test Tool</h1>
+        <p class="subtitle">Test approval and rejection emails</p>
+        
+        <div class="info-box">
+            <strong>ℹ️ Instructions:</strong>
+            Fill in the test data below and click the button to send a test email. Check your inbox (and spam folder) for the email.
+        </div>
+        
+        <!-- Approval Email Test -->
+        <div class="test-section approve">
+            <h2>✅ Test Approval Email</h2>
+            <form id="approveForm">
+                <div class="form-group">
+                    <label for="approve-email">Recipient Email:</label>
+                    <input type="email" id="approve-email" placeholder="test@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="approve-name">Student Name:</label>
+                    <input type="text" id="approve-name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="approve-course">Course Name:</label>
+                    <input type="text" id="approve-course" placeholder="Web Development" value="Web Development">
+                </div>
+                <div class="form-group">
+                    <label for="approve-transaction">Transaction ID (optional):</label>
+                    <input type="text" id="approve-transaction" placeholder="TXN123456789">
+                </div>
+                <button type="submit">Send Approval Email</button>
+                <div class="status" id="approve-status"></div>
+            </form>
+        </div>
+        
+        <!-- Rejection Email Test -->
+        <div class="test-section reject">
+            <h2>❌ Test Rejection Email</h2>
+            <form id="rejectForm">
+                <div class="form-group">
+                    <label for="reject-email">Recipient Email:</label>
+                    <input type="email" id="reject-email" placeholder="test@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="reject-name">Student Name:</label>
+                    <input type="text" id="reject-name" placeholder="Jane Smith" required>
+                </div>
+                <div class="form-group">
+                    <label for="reject-course">Course Name:</label>
+                    <input type="text" id="reject-course" placeholder="Web Development" value="Web Development">
+                </div>
+                <div class="form-group">
+                    <label for="reject-reason">Rejection Reason:</label>
+                    <textarea id="reject-reason" placeholder="Enter rejection reason..." required>Transaction ID not found in our payment records. Please verify and resend the correct screenshot.</textarea>
+                </div>
+                <button type="submit" class="reject-btn">Send Rejection Email</button>
+                <div class="status" id="reject-status"></div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Get API endpoint (works locally and on Netlify)
+        const API_ENDPOINT = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8888/.netlify/functions/send-approval-email'
+            : '/.netlify/functions/send-approval-email';
+        
+        // Handle Approval Form
+        document.getElementById('approveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const statusEl = document.getElementById('approve-status');
+            statusEl.className = 'status loading';
+            statusEl.textContent = '⏳ Sending email...';
+            
+            const data = {
+                studentEmail: document.getElementById('approve-email').value,
+                studentName: document.getElementById('approve-name').value,
+                courseName: document.getElementById('approve-course').value,
+                transactionId: document.getElementById('approve-transaction').value,
+                action: 'approve'
+            };
+            
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    statusEl.className = 'status success';
+                    statusEl.innerHTML = `✅ Approval email sent successfully!<br>Message ID: ${result.messageId}<br>Check inbox: ${data.studentEmail}`;
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = `❌ Error: ${result.error || 'Failed to send email'}`;
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ Network error: ${error.message}`;
+            }
+        });
+        
+        // Handle Rejection Form
+        document.getElementById('rejectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const statusEl = document.getElementById('reject-status');
+            statusEl.className = 'status loading';
+            statusEl.textContent = '⏳ Sending email...';
+            
+            const data = {
+                studentEmail: document.getElementById('reject-email').value,
+                studentName: document.getElementById('reject-name').value,
+                courseName: document.getElementById('reject-course').value,
+                rejectionReason: document.getElementById('reject-reason').value,
+                action: 'reject'
+            };
+            
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    statusEl.className = 'status success';
+                    statusEl.innerHTML = `✅ Rejection email sent successfully!<br>Message ID: ${result.messageId}<br>Check inbox: ${data.studentEmail}`;
+                } else {
+                    statusEl.className = 'status error';
+                    statusEl.textContent = `❌ Error: ${result.error || 'Failed to send email'}`;
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusEl.textContent = `❌ Network error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

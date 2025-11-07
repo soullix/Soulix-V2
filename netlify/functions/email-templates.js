@@ -24,7 +24,7 @@ const APPROVAL_TEMPLATE = `<!DOCTYPE html>
 <body>
   <div class="container">
     <div class="logo-section">
-      <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo" />
+      <img src="https://i.postimg.cc/7fdyh4NV/soulix-logo.png" alt="SOULIX Logo" />
     </div>
 
     <div class="content">
@@ -101,7 +101,7 @@ const REJECTION_TEMPLATE = `<!DOCTYPE html>
         <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#111111; border-radius:12px; padding:30px;">
           <tr>
             <td align="center" style="padding-bottom:25px;">
-              <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo" width="120" style="display:block;" />
+              <img src="https://i.postimg.cc/7fdyh4NV/soulix-logo.png" alt="SOULIX Logo" width="120" style="display:block;" />
             </td>
           </tr>
           <tr>

@@ -779,6 +779,14 @@ function approveApplication(id) {
         
         saveData();
         
+        // Save to Supabase tables
+        if (typeof saveApprovedApplication === 'function') {
+            saveApprovedApplication(app);
+        }
+        if (typeof savePaymentTransaction === 'function') {
+            savePaymentTransaction(app);
+        }
+        
         // Log the approval action with details
         addAdminLog('success', '✅ Application Approved', 
             `${app.name} • ${app.course} • ${paymentDetails} • From ${deviceInfo.deviceType || 'Desktop'}`);
@@ -857,6 +865,11 @@ function rejectApplicationWithReason(id, reason) {
     };
     
     saveData();
+    
+    // Save to Supabase rejected_applications table
+    if (typeof saveRejectedApplication === 'function') {
+        saveRejectedApplication(app);
+    }
     
     // Send rejection notification
     sendRejectionNotification(app);

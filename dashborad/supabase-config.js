@@ -299,3 +299,253 @@ async function checkSupabaseConnection() {
         return { connected: false, error: error.message };
     }
 }
+
+// ============================================
+// SAVE APPROVED APPLICATION
+// ============================================
+async function saveApprovedApplication(application) {
+    if (!supabase) return false;
+    
+    try {
+        const deviceInfo = JSON.parse(sessionStorage.getItem('deviceInfo') || '{}');
+        
+        const approvedData = {
+            application_id: application.id,
+            student_name: application.name,
+            student_email: application.email,
+            student_phone: application.phone,
+            course: application.course,
+            payment_type: application.paymentType || null,
+            payment_amount: application.paymentAmount || null,
+            payment_status: application.paymentStatus || null,
+            upi_transaction_id: application.upiTransactionId || null,
+            installments_paid: application.installmentsPaid || 0,
+            total_installments: application.totalInstallments || 0,
+            applied_date: application.appliedDate,
+            approved_date: application.approvedDate || new Date().toISOString(),
+            approved_by_username: sessionStorage.getItem('adminUsername') || 'Admin',
+            approved_by_device: deviceInfo.deviceType || 'Unknown',
+            approved_by_browser: deviceInfo.browser || 'Unknown',
+            approved_by_platform: deviceInfo.platform || 'Unknown'
+        };
+        
+        const { error } = await supabase
+            .from('approved_applications')
+            .insert([approvedData]);
+        
+        if (error) throw error;
+        
+        // Also delete from pending_applications if exists
+        await supabase
+            .from('pending_applications')
+            .delete()
+            .eq('application_id', application.id);
+        
+        console.log('✅ Approved application saved to Supabase');
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving approved application:', error);
+        return false;
+    }
+}
+
+// ============================================
+// SAVE REJECTED APPLICATION
+// ============================================
+async function saveRejectedApplication(application) {
+    if (!supabase) return false;
+    
+    try {
+        const deviceInfo = JSON.parse(sessionStorage.getItem('deviceInfo') || '{}');
+        
+        const rejectedData = {
+            application_id: application.id,
+            student_name: application.name,
+            student_email: application.email,
+            student_phone: application.phone,
+            course: application.course,
+            rejection_reason: application.rejectionReason || 'Not specified',
+            applied_date: application.appliedDate,
+            rejected_date: application.rejectedDate || new Date().toISOString(),
+            rejected_by_username: sessionStorage.getItem('adminUsername') || 'Admin',
+            rejected_by_device: deviceInfo.deviceType || 'Unknown',
+            rejected_by_browser: deviceInfo.browser || 'Unknown',
+            rejected_by_platform: deviceInfo.platform || 'Unknown'
+        };
+        
+        const { error } = await supabase
+            .from('rejected_applications')
+            .insert([rejectedData]);
+        
+        if (error) throw error;
+        
+        // Also delete from pending_applications if exists
+        await supabase
+            .from('pending_applications')
+            .delete()
+            .eq('application_id', application.id);
+        
+        console.log('✅ Rejected application saved to Supabase');
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving rejected application:', error);
+        return false;
+    }
+}
+
+// ============================================
+// SAVE PENDING APPLICATION
+// ============================================
+async function savePendingApplication(application) {
+    if (!supabase) return false;
+    
+    try {
+        const pendingData = {
+            application_id: application.id,
+            student_name: application.name,
+            student_email: application.email,
+            student_phone: application.phone,
+            course: application.course,
+            payment_type: application.paymentType || null,
+            upi_transaction_id: application.upiTransactionId || null,
+            applied_date: application.appliedDate
+        };
+        
+        const { error } = await supabase
+            .from('pending_applications')
+            .upsert(pendingData, { onConflict: 'application_id' });
+        
+        if (error) throw error;
+        
+        console.log('✅ Pending application saved to Supabase');
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving pending application:', error);
+        return false;
+    }
+}
+
+// ============================================
+// SAVE PAYMENT TRANSACTION
+// ============================================
+async function savePaymentTransaction(application) {
+    if (!supabase) return false;
+    
+    try {
+        const deviceInfo = JSON.parse(sessionStorage.getItem('deviceInfo') || '{}');
+        
+        const paymentData = {
+            application_id: application.id,
+            student_name: application.name,
+            student_email: application.email,
+            student_phone: application.phone,
+            course: application.course,
+            payment_type: application.paymentType || 'Full Payment',
+            payment_amount: application.paymentAmount || '0',
+            payment_status: application.paymentStatus || 'Paid',
+            upi_transaction_id: application.upiTransactionId || null,
+            installment_number: application.installmentsPaid || 0,
+            total_installments: application.totalInstallments || 0,
+            approved_by_username: sessionStorage.getItem('adminUsername') || 'Admin',
+            approved_by_device: deviceInfo.deviceType || 'Unknown',
+            approved_by_browser: deviceInfo.browser || 'Unknown',
+            notes: `Payment confirmed for ${application.course}`
+        };
+        
+        const { error } = await supabase
+            .from('payments')
+            .insert([paymentData]);
+        
+        if (error) throw error;
+        
+        console.log('✅ Payment transaction saved to Supabase');
+        return true;
+    } catch (error) {
+        console.error('❌ Error saving payment transaction:', error);
+        return false;
+    }
+}
+
+// ============================================
+// GET ALL APPROVED APPLICATIONS
+// ============================================
+async function getApprovedApplications() {
+    if (!supabase) return [];
+    
+    try {
+        const { data, error } = await supabase
+            .from('approved_applications')
+            .select('*')
+            .order('approved_date', { ascending: false });
+        
+        if (error) throw error;
+        
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching approved applications:', error);
+        return [];
+    }
+}
+
+// ============================================
+// GET ALL REJECTED APPLICATIONS
+// ============================================
+async function getRejectedApplications() {
+    if (!supabase) return [];
+    
+    try {
+        const { data, error } = await supabase
+            .from('rejected_applications')
+            .select('*')
+            .order('rejected_date', { ascending: false });
+        
+        if (error) throw error;
+        
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching rejected applications:', error);
+        return [];
+    }
+}
+
+// ============================================
+// GET ALL PENDING APPLICATIONS
+// ============================================
+async function getPendingApplications() {
+    if (!supabase) return [];
+    
+    try {
+        const { data, error } = await supabase
+            .from('pending_applications')
+            .select('*')
+            .order('applied_date', { ascending: false });
+        
+        if (error) throw error;
+        
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching pending applications:', error);
+        return [];
+    }
+}
+
+// ============================================
+// GET ALL PAYMENTS
+// ============================================
+async function getAllPayments() {
+    if (!supabase) return [];
+    
+    try {
+        const { data, error } = await supabase
+            .from('payments')
+            .select('*')
+            .order('payment_date', { ascending: false });
+        
+        if (error) throw error;
+        
+        return data;
+    } catch (error) {
+        console.error('❌ Error fetching payments:', error);
+        return [];
+    }
+}

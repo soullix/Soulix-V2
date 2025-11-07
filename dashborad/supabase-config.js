@@ -4,8 +4,8 @@
 // ==============================================
 
 // Supabase Configuration
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // Replace with your Supabase URL
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your Supabase anon key
+const SUPABASE_URL = 'https://xmtxeagxnqfczenqwizz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtdHhlYWd4bnFmY3plbnF3aXp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0Mzg3MTgsImV4cCI6MjA3ODAxNDcxOH0.NUTpXhNfoXkcCrWhGE2-j4V6p9VydN6EkLPUCBVqeh8';
 
 // Initialize Supabase client (will be loaded from CDN in HTML)
 let supabase = null;

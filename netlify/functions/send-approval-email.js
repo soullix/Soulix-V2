@@ -123,17 +123,17 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Load HTML templates from repository files and use them based on action
+    // Load HTML templates from templates folder next to function
     const fs = require('fs');
     const path = require('path');
 
-    // Template paths - function lives in netlify/functions so go up two levels to project root
-    const rootDir = path.resolve(__dirname, '..', '..');
-    const approveTemplatePath = path.join(rootDir, 'final_confirmation_email_preview.html');
-    const rejectTemplatePath = path.join(rootDir, 'rejected_email_preview.html');
+    // Template paths - templates are in netlify/functions/templates folder
+    const templatesDir = path.join(__dirname, 'templates');
+    const approveTemplatePath = path.join(templatesDir, 'final_confirmation_email_preview.html');
+    const rejectTemplatePath = path.join(templatesDir, 'rejected_email_preview.html');
 
     console.log('📁 Template paths:', {
-      rootDir,
+      templatesDir,
       approveTemplatePath,
       rejectTemplatePath,
       approveExists: fs.existsSync(approveTemplatePath),

@@ -93,61 +93,75 @@ const REJECTION_TEMPLATE = `<!DOCTYPE html>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Payment Issue — Action Required</title>
-<style>
-  body { background:#000; margin:0; padding:0; font-family:Arial, sans-serif; color:#fff; }
-  .container { max-width:600px; margin:auto; background:#111; border-radius:12px; padding:30px; color:#fff; }
-  .logo { text-align:center; margin-bottom:25px; }
-  .logo img { width:120px; }
-  .alert { background:#330000; padding:15px; border-left:4px solid #ff4444; border-radius:8px; color:#fff; }
-  ul { margin-top:10px; color:#fff; padding-left:20px; }
-  ul li { margin-bottom:5px; color:#fff; }
-  .btn { display:block; margin-top:18px; padding:14px; background:#25d366; text-align:center; color:#fff !important; font-weight:bold; border-radius:8px; text-decoration:none; }
-  .btn.blue { background:#3b82f6; }
-  footer { text-align:center; margin-top:30px; color:#777; font-size:12px; }
-  p { color:#fff; }
-</style>
 </head>
-<body>
-<div class="container">
-<div class="logo">
-  <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo" />
-</div>
-
-<h2 style="color:#ff4444; text-align:center; margin-bottom:20px;">⚠️ Payment Verification Failed</h2>
-<p style="font-size:15px; color:#fff;">Hi <b>{{studentName}}</b>,</p>
-
-<div class="alert">
-  <p style="margin:0 0 10px 0; color:#fff;"><b>❌ We could not verify your payment for {{courseName}}.</b></p>
-  <p style="margin:10px 0; color:#fff;"><b>Reason:</b> {{rejectionReason}}</p>
-  <p style="margin:10px 0 5px 0; color:#fff;">Common issues:</p>
-  <ul style="margin:5px 0 0 0; color:#fff;">
-    <li style="color:#fff;">Incorrect / invalid Transaction ID</li>
-    <li style="color:#fff;">Payment not received or incomplete</li>
-    <li style="color:#fff;">Screenshot missing or unclear</li>
-  </ul>
-</div>
-
-<p style="margin-top:25px; font-size:15px; line-height:1.6; color:#fff;">
-Please resend your payment screenshot or transaction proof so we can proceed with your seat booking.<br><br>
-<b>You can reply to this email and attach the screenshot directly,</b><br>or send it on WhatsApp using the button below.
-</p>
-
-<a href="https://wa.me/919356671329" class="btn">📱 Send Screenshot on WhatsApp</a>
-
-<p style="font-size:14px; margin-top:20px; margin-bottom:15px; text-align:center; color:#888;">OR</p>
-
-<a href="mailto:support@soulix.tech?subject=Payment%20Screenshot%20Attached&body=Hi%20Team%20Soulix,%0D%0AHere%20is%20my%20payment%20screenshot%20for%20verification.%0D%0ATransaction%20ID:%20%0D%0AThank%20you!" class="btn blue">✉️ Reply With Screenshot</a>
-
-<p style="margin-top:35px; line-height:1.6; font-size:15px; color:#fff;">
-Regards,<br>
-<b>Team SOULIX</b><br>
-support@soulix.tech
-</p>
-
-<footer>
-© 2025 SOULIX — All rights reserved.
-</footer>
-</div>
+<body style="background-color:#000000; margin:0; padding:20px; font-family:Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#000000;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="background-color:#111111; border-radius:12px; padding:30px;">
+          <tr>
+            <td align="center" style="padding-bottom:25px;">
+              <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo" width="120" style="display:block;" />
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <h2 style="color:#ff4444; text-align:center; margin:0 0 20px 0; font-size:20px;">⚠️ Payment Verification Failed</h2>
+              <p style="font-size:15px; color:#ffffff; margin:0 0 20px 0;">Hi <b style="color:#ffffff;">{{studentName}}</b>,</p>
+              
+              <table width="100%" cellpadding="15" cellspacing="0" border="0" style="background-color:#330000; border-left:4px solid #ff4444; border-radius:8px; margin-bottom:25px;">
+                <tr>
+                  <td>
+                    <p style="margin:0 0 15px 0; color:#ffffff; font-size:15px;"><b>❌ We could not verify your payment for {{courseName}}.</b></p>
+                    <p style="margin:10px 0 5px 0; color:#ffffff; font-size:15px;">Common issues:</p>
+                    <ul style="margin:5px 0 0 0; padding-left:20px; color:#ffffff;">
+                      <li style="color:#ffffff; margin-bottom:5px;">Incorrect / invalid Transaction ID</li>
+                      <li style="color:#ffffff; margin-bottom:5px;">Payment not received or incomplete</li>
+                      <li style="color:#ffffff; margin-bottom:5px;">Screenshot missing or unclear</li>
+                    </ul>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="font-size:15px; line-height:1.6; color:#ffffff; margin:0 0 25px 0;">
+                Please resend your payment screenshot or transaction proof so we can proceed with your seat booking.<br><br>
+                <b style="color:#ffffff;">You can reply to this email and attach the screenshot directly,</b><br>
+                or send it on WhatsApp using the button below.
+              </p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:15px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://wa.me/919356671329" style="display:block; padding:14px; background-color:#25d366; text-align:center; color:#ffffff !important; font-weight:bold; border-radius:8px; text-decoration:none; font-size:15px;">📱 Send Screenshot on WhatsApp</a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="font-size:14px; text-align:center; color:#888888; margin:15px 0;">OR</p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:25px;">
+                <tr>
+                  <td align="center">
+                    <a href="mailto:support@soulix.tech?subject=Payment%20Screenshot%20Attached" style="display:block; padding:14px; background-color:#3b82f6; text-align:center; color:#ffffff !important; font-weight:bold; border-radius:8px; text-decoration:none; font-size:15px;">✉️ Reply With Screenshot</a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="line-height:1.6; font-size:15px; color:#ffffff; margin:35px 0 0 0;">
+                Regards,<br>
+                <b style="color:#ffffff;">Team SOULIX</b><br>
+                <span style="color:#ffffff;">support@soulix.tech</span>
+              </p>
+              
+              <p style="text-align:center; margin-top:30px; color:#777777; font-size:12px;">
+                © 2025 SOULIX — All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 

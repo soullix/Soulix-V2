@@ -18,6 +18,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Function timeout (optional)
+# Function configuration
 [functions]
   node_bundler = "esbuild"
+  # Include HTML template files in function deployment
+  included_files = ["netlify/functions/templates/*.html"]

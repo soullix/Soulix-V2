@@ -123,65 +123,39 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Load HTML templates from templates folder next to function
-    const fs = require('fs');
-    const path = require('path');
-
-    // Template paths - templates are in netlify/functions/templates folder
-    const templatesDir = path.join(__dirname, 'templates');
-    const approveTemplatePath = path.join(templatesDir, 'final_confirmation_email_preview.html');
-    const rejectTemplatePath = path.join(templatesDir, 'rejected_email_preview.html');
-
-    console.log('📁 Template paths:', {
-      templatesDir,
-      approveTemplatePath,
-      rejectTemplatePath,
-      approveExists: fs.existsSync(approveTemplatePath),
-      rejectExists: fs.existsSync(rejectTemplatePath)
-    });
+    // Load HTML templates - now embedded in the function bundle
+    const { APPROVAL_TEMPLATE, REJECTION_TEMPLATE } = require('./email-templates');
 
     let subject = 'Notification from SOULIX';
     let htmlContent = '';
 
+    console.log('� Template system: Using embedded templates');
+
     try {
       if (action === 'reject') {
         subject = '⚠️ Payment Issue — Action Required';
-        if (fs.existsSync(rejectTemplatePath)) {
-          let template = fs.readFileSync(rejectTemplatePath, 'utf8');
-          console.log('✅ Rejection template loaded, length:', template.length);
-          // Replace standardized placeholders
-          template = template.replace(/{{studentName}}/g, studentName);
-          template = template.replace(/{{courseName}}/g, courseName || 'IGNITE Training Program');
-          template = template.replace(/{{rejectionReason}}/g, rejectionReason || 'Please verify your payment details');
-          template = template.replace(/{{transactionId}}/g, transactionId ? `<br>Transaction ID: <b>${transactionId}</b>` : '');
-          htmlContent = template;
-        } else {
-          console.error('❌ Rejection template not found at:', rejectTemplatePath);
-        }
+        let template = REJECTION_TEMPLATE;
+        // Replace standardized placeholders
+        template = template.replace(/{{studentName}}/g, studentName);
+        template = template.replace(/{{courseName}}/g, courseName || 'IGNITE Training Program');
+        template = template.replace(/{{rejectionReason}}/g, rejectionReason || 'Please verify your payment details');
+        template = template.replace(/{{transactionId}}/g, transactionId ? `<br>Transaction ID: <b>${transactionId}</b>` : '');
+        htmlContent = template;
+        console.log('✅ Rejection template loaded, length:', htmlContent.length);
       } else {
         subject = '✅ Seat Confirmed — IGNITE Training Program';
-        if (fs.existsSync(approveTemplatePath)) {
-          let template = fs.readFileSync(approveTemplatePath, 'utf8');
-          console.log('✅ Approval template loaded, length:', template.length);
-          // Replace standardized placeholders
-          template = template.replace(/{{studentName}}/g, studentName);
-          template = template.replace(/{{courseName}}/g, courseName || 'IGNITE Training Program');
-          template = template.replace(/{{transactionId}}/g, transactionId ? `<b>Transaction ID:</b> ${transactionId}` : '');
-          htmlContent = template;
-        } else {
-          console.error('❌ Approval template not found at:', approveTemplatePath);
-        }
-      }
-
-      // Fallback minimal HTML if template not found
-      if (!htmlContent) {
-        console.warn('⚠️ Using fallback HTML (template not loaded)');
-        htmlContent = `<div style="font-family:Arial, sans-serif; color:#111;"><p>Hi ${studentName},</p><p>${action === 'reject' ? 'We could not verify your payment. Please resend proof.' : 'Your seat is confirmed. Welcome!'}</p></div>`;
+        let template = APPROVAL_TEMPLATE;
+        // Replace standardized placeholders
+        template = template.replace(/{{studentName}}/g, studentName);
+        template = template.replace(/{{courseName}}/g, courseName || 'IGNITE Training Program');
+        template = template.replace(/{{transactionId}}/g, transactionId ? `<b>Transaction ID:</b> ${transactionId}` : '');
+        htmlContent = template;
+        console.log('✅ Approval template loaded, length:', htmlContent.length);
       }
 
     } catch (err) {
-      console.error('❌ Template load error:', err);
-      htmlContent = `<div><p>Hi ${studentName},</p><p>${action === 'reject' ? 'We could not verify your payment. Please resend proof.' : 'Your seat is confirmed. Welcome!'}</p></div>`;
+      console.error('❌ Template error:', err);
+      htmlContent = `<div style="font-family:Arial, sans-serif; background:#000; color:#fff; padding:40px;"><p>Hi ${studentName},</p><p>${action === 'reject' ? 'We could not verify your payment. Please resend proof.' : 'Your seat is confirmed. Welcome!'}</p></div>`;
     }
 
     // Brevo email payload - Remove textContent to force HTML rendering

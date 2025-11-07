@@ -95,15 +95,16 @@ const REJECTION_TEMPLATE = `<!DOCTYPE html>
 <title>Payment Issue — Action Required</title>
 <style>
   body { background:#000; margin:0; padding:0; font-family:Arial, sans-serif; color:#fff; }
-  .container { max-width:600px; margin:auto; background:#111; border-radius:12px; padding:30px; }
+  .container { max-width:600px; margin:auto; background:#111; border-radius:12px; padding:30px; color:#fff; }
   .logo { text-align:center; margin-bottom:25px; }
   .logo img { width:120px; }
   .alert { background:#330000; padding:15px; border-left:4px solid #ff4444; border-radius:8px; color:#fff; }
-  ul { margin-top:10px; color:#ddd; padding-left:20px; }
-  ul li { margin-bottom:5px; }
+  ul { margin-top:10px; color:#fff; padding-left:20px; }
+  ul li { margin-bottom:5px; color:#fff; }
   .btn { display:block; margin-top:18px; padding:14px; background:#25d366; text-align:center; color:#fff !important; font-weight:bold; border-radius:8px; text-decoration:none; }
   .btn.blue { background:#3b82f6; }
   footer { text-align:center; margin-top:30px; color:#777; font-size:12px; }
+  p { color:#fff; }
 </style>
 </head>
 <body>
@@ -113,20 +114,20 @@ const REJECTION_TEMPLATE = `<!DOCTYPE html>
 </div>
 
 <h2 style="color:#ff4444; text-align:center; margin-bottom:20px;">⚠️ Payment Verification Failed</h2>
-<p style="font-size:15px;">Hi <b>{{studentName}}</b>,</p>
+<p style="font-size:15px; color:#fff;">Hi <b>{{studentName}}</b>,</p>
 
 <div class="alert">
-  <p style="margin:0 0 10px 0;"><b>❌ We could not verify your payment for {{courseName}}.</b></p>
-  <p style="margin:10px 0;"><b>Reason:</b> {{rejectionReason}}</p>
-  <p style="margin:10px 0 5px 0;">Common issues:</p>
-  <ul style="margin:5px 0 0 0;">
-    <li>Incorrect / invalid Transaction ID</li>
-    <li>Payment not received or incomplete</li>
-    <li>Screenshot missing or unclear</li>
+  <p style="margin:0 0 10px 0; color:#fff;"><b>❌ We could not verify your payment for {{courseName}}.</b></p>
+  <p style="margin:10px 0; color:#fff;"><b>Reason:</b> {{rejectionReason}}</p>
+  <p style="margin:10px 0 5px 0; color:#fff;">Common issues:</p>
+  <ul style="margin:5px 0 0 0; color:#fff;">
+    <li style="color:#fff;">Incorrect / invalid Transaction ID</li>
+    <li style="color:#fff;">Payment not received or incomplete</li>
+    <li style="color:#fff;">Screenshot missing or unclear</li>
   </ul>
 </div>
 
-<p style="margin-top:25px; font-size:15px; line-height:1.6;">
+<p style="margin-top:25px; font-size:15px; line-height:1.6; color:#fff;">
 Please resend your payment screenshot or transaction proof so we can proceed with your seat booking.<br><br>
 <b>You can reply to this email and attach the screenshot directly,</b><br>or send it on WhatsApp using the button below.
 </p>
@@ -137,7 +138,7 @@ Please resend your payment screenshot or transaction proof so we can proceed wit
 
 <a href="mailto:support@soulix.tech?subject=Payment%20Screenshot%20Attached&body=Hi%20Team%20Soulix,%0D%0AHere%20is%20my%20payment%20screenshot%20for%20verification.%0D%0ATransaction%20ID:%20%0D%0AThank%20you!" class="btn blue">✉️ Reply With Screenshot</a>
 
-<p style="margin-top:35px; line-height:1.6; font-size:15px;">
+<p style="margin-top:35px; line-height:1.6; font-size:15px; color:#fff;">
 Regards,<br>
 <b>Team SOULIX</b><br>
 support@soulix.tech

@@ -9,6 +9,10 @@ let notifications = 0;
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
+    
+    // Log login session details
+    logLoginSession();
+    
     initNavigation();
     initMobileMenu();
     initDateTime();
@@ -37,7 +41,72 @@ document.addEventListener('DOMContentLoaded', function() {
             addTooltips();
         }, 100);
     }, 30000);
+    
+    // Sync data across tabs/devices
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'applications') {
+            loadData();
+            updateAllStats();
+            renderApplications();
+            renderRecentApplications();
+            updateCharts();
+            addAdminLog('info', 'Data Synced', 'Updated from another tab/device');
+        }
+    });
 });
+
+// Log Login Session Details
+function logLoginSession() {
+    const deviceInfo = sessionStorage.getItem('deviceInfo');
+    const loginTime = sessionStorage.getItem('loginTime');
+    const username = sessionStorage.getItem('adminUsername') || 'Admin';
+    
+    if (deviceInfo && loginTime) {
+        try {
+            const info = JSON.parse(deviceInfo);
+            const loginDate = new Date(loginTime);
+            const timeAgo = getTimeAgo(loginDate);
+            
+            // Create detailed login log message
+            const logMessage = `
+                👤 User: ${username}
+                📱 Device: ${info.deviceType}
+                🌐 Browser: ${info.browser}
+                💻 Platform: ${info.platform}
+                📏 Screen: ${info.screenResolution}
+                ⏰ Time: ${timeAgo}
+            `.trim().replace(/\s+/g, ' ');
+            
+            addAdminLog('success', '🔐 Login Session', logMessage);
+            
+            // Log previous session if exists
+            const loginSessions = JSON.parse(localStorage.getItem('loginSessions') || '[]');
+            if (loginSessions.length > 1) {
+                const prevSession = loginSessions[loginSessions.length - 2];
+                if (prevSession) {
+                    const prevTime = getTimeAgo(new Date(prevSession.loginTime));
+                    addAdminLog('info', '📜 Previous Login', 
+                        `${prevSession.deviceType} • ${prevSession.browser} • ${prevTime}`);
+                }
+            }
+        } catch (e) {
+            console.error('Error logging session:', e);
+        }
+    }
+}
+
+// Get time ago helper
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+}
 
 // Keyboard Shortcuts
 function initKeyboardShortcuts() {
@@ -243,6 +312,14 @@ function loadData() {
 
 function saveData() {
     localStorage.setItem('soulixApplications', JSON.stringify(applications));
+    
+    // Also set a timestamp to track data changes
+    localStorage.setItem('lastDataUpdate', Date.now().toString());
+    
+    // Dispatch custom event for same-tab updates
+    window.dispatchEvent(new CustomEvent('dataUpdated', { 
+        detail: { timestamp: Date.now() } 
+    }));
 }
 
 // Navigation
@@ -654,7 +731,21 @@ function approveApplication(id) {
     if (paymentConfirmed) {
         app.status = 'Approved';
         app.approvedDate = new Date().toISOString();
+        
+        // Get device info for logging
+        const deviceInfo = JSON.parse(sessionStorage.getItem('deviceInfo') || '{}');
+        app.approvedBy = {
+            username: sessionStorage.getItem('adminUsername') || 'Admin',
+            device: deviceInfo.deviceType || 'Unknown',
+            browser: deviceInfo.browser || 'Unknown',
+            timestamp: new Date().toISOString()
+        };
+        
         saveData();
+        
+        // Log the approval action with details
+        addAdminLog('success', '✅ Application Approved', 
+            `${app.name} • ${app.course} • ${paymentDetails} • From ${deviceInfo.deviceType || 'Desktop'}`);
         
         // Send Email & SMS (simulated)
         sendApprovalNotification(app);
@@ -719,13 +810,24 @@ function rejectApplicationWithReason(id, reason) {
     app.status = 'Rejected';
     app.rejectedDate = new Date().toISOString();
     app.rejectionReason = reason || 'Not specified';
+    
+    // Get device info for logging
+    const deviceInfo = JSON.parse(sessionStorage.getItem('deviceInfo') || '{}');
+    app.rejectedBy = {
+        username: sessionStorage.getItem('adminUsername') || 'Admin',
+        device: deviceInfo.deviceType || 'Unknown',
+        browser: deviceInfo.browser || 'Unknown',
+        timestamp: new Date().toISOString()
+    };
+    
     saveData();
     
     // Send rejection notification
     sendRejectionNotification(app);
     
-    // Log activity
-    addAdminLog('error', 'Application Rejected', `${app.name} - ${app.course} - Reason: ${reason}`);
+    // Log activity with device info
+    addAdminLog('error', '❌ Application Rejected', 
+        `${app.name} • ${app.course} • Reason: ${reason} • From ${deviceInfo.deviceType || 'Desktop'}`);
     
     // Haptic feedback on mobile
     if (navigator.vibrate) {

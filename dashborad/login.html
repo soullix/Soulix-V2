@@ -583,10 +583,38 @@
             setTimeout(() => {
                 // Validate credentials
                 if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                    // Get device and location info
+                    const deviceInfo = {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform,
+                        language: navigator.language,
+                        screenResolution: `${screen.width}x${screen.height}`,
+                        deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                        browser: getBrowserInfo(),
+                        timestamp: new Date().toISOString()
+                    };
+
                     // Store login state
                     sessionStorage.setItem('adminLoggedIn', 'true');
                     sessionStorage.setItem('adminUsername', username);
                     sessionStorage.setItem('loginTime', new Date().toISOString());
+                    sessionStorage.setItem('deviceInfo', JSON.stringify(deviceInfo));
+
+                    // Store login session info in localStorage for logging
+                    const loginSessions = JSON.parse(localStorage.getItem('loginSessions') || '[]');
+                    loginSessions.push({
+                        username: username,
+                        loginTime: new Date().toISOString(),
+                        deviceType: deviceInfo.deviceType,
+                        browser: deviceInfo.browser,
+                        platform: deviceInfo.platform,
+                        screenResolution: deviceInfo.screenResolution
+                    });
+                    // Keep only last 50 sessions
+                    if (loginSessions.length > 50) {
+                        loginSessions.shift();
+                    }
+                    localStorage.setItem('loginSessions', JSON.stringify(loginSessions));
 
                     // Handle remember me
                     if (rememberMe.checked) {
@@ -609,6 +637,18 @@
                 }
             }, 1000);
         });
+
+        // Get browser info
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            if (ua.indexOf("Firefox") > -1) return "Firefox";
+            if (ua.indexOf("Opera") > -1 || ua.indexOf("OPR") > -1) return "Opera";
+            if (ua.indexOf("Trident") > -1) return "IE";
+            if (ua.indexOf("Edge") > -1) return "Edge";
+            if (ua.indexOf("Chrome") > -1) return "Chrome";
+            if (ua.indexOf("Safari") > -1) return "Safari";
+            return "Unknown";
+        }
 
         // Clear error on input
         usernameInput.addEventListener('input', () => {

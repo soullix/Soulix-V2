@@ -57,8 +57,7 @@ function initAdminLog() {
         });
     }
     
-    // Log initial session
-    addAdminLog('info', 'Session Started', 'Admin dashboard initialized successfully');
+    // Don't add "Session Started" here - it will be added after loading old logs
 }
 
 function addAdminLog(type, title, message, saveToSupabaseFlag = true) {

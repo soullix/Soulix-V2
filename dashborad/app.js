@@ -40,13 +40,32 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Save login session
     await window.DataManager.saveLoginSession();
     
-    // Load and display logs from Supabase
+    // Initialize UI components FIRST
+    initNavigation();
+    initMobileMenu();
+    initDateTime();
+    initScrollProgress();
+    initBackToTop();
+    initKeyboardShortcuts();
+    initAdminLog(); // Initialize log panel BEFORE loading logs
+    
+    // NOW load and display old logs from Supabase (after panel is ready)
+    console.log('📋 Loading previous session logs...');
     const logs = await window.DataManager.getLogs(50);
     if (logs && logs.length > 0) {
-        logs.reverse().forEach(log => {
+        console.log(`✅ Found ${logs.length} previous logs`);
+        // Add old logs FIRST (they'll appear at bottom since we're using insertBefore)
+        logs.forEach(log => {
             addAdminLog(log.log_type, log.title, log.message, false);
         });
+    } else {
+        console.log('ℹ️ No previous logs found');
     }
+    
+    // NOW add session started log (will appear at top)
+    addAdminLog('info', '🎯 Session Started', 
+        `Admin ${sessionStorage.getItem('adminUsername') || 'User'} logged in - Dashboard initialized successfully`
+    );
     
     // Listen for data updates from DataManager
     window.addEventListener('dataUpdated', function() {
@@ -64,14 +83,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Log login session details (local)
     logLoginSession();
-    
-    initNavigation();
-    initMobileMenu();
-    initDateTime();
-    initScrollProgress();
-    initBackToTop();
-    initKeyboardShortcuts();
-    initAdminLog();
     
     updateAllStats();
     renderApplications();

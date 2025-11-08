@@ -375,6 +375,8 @@ function triggerDataUpdate() {
 // ============================================
 async function saveLog(type, title, message) {
     try {
+        console.log('💾 Saving log to Supabase:', type, title);
+        
         const deviceInfo = getDeviceInfo();
         
         const logData = {
@@ -387,24 +389,42 @@ async function saveLog(type, title, message) {
             platform: deviceInfo.platform
         };
         
-        await supabaseClient.from('admin_logs').insert([logData]);
+        const { data, error } = await supabaseClient.from('admin_logs').insert([logData]);
+        
+        if (error) {
+            console.error('❌ Failed to save log:', error);
+            throw error;
+        }
+        
+        console.log('✅ Log saved successfully');
+        return { success: true, data };
+        
     } catch (error) {
-        console.error('Error saving log:', error);
+        console.error('❌ Error saving log:', error);
+        return { success: false, error: error.message };
     }
 }
 
 async function getLogs(limit = 50) {
     try {
+        console.log(`📋 Loading ${limit} logs from Supabase...`);
+        
         const { data, error } = await supabaseClient
             .from('admin_logs')
             .select('*')
             .order('created_at', { ascending: false })
             .limit(limit);
         
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Error loading logs:', error);
+            throw error;
+        }
+        
+        console.log(`✅ Loaded ${data?.length || 0} logs from database`);
         return data || [];
+        
     } catch (error) {
-        console.error('Error loading logs:', error);
+        console.error('❌ Error loading logs:', error);
         return [];
     }
 }

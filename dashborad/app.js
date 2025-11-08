@@ -6,16 +6,27 @@
 let applications = [];
 let notifications = 0;
 
+// Debounce utility for performance optimization
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 Initializing Dashboard...');
-    
     // ============================================
     // NEW SYSTEM: Use DataManager
     // ============================================
     
     if (!window.DataManager) {
-        console.error('❌ DataManager not loaded');
+        console.error('DataManager not loaded');
         showToast('error', 'System Error', 'Data Manager failed to load');
         applications = getSampleApplications(); // Fallback
         return;
@@ -25,17 +36,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     const result = await window.DataManager.init();
     
     if (!result.success) {
-        console.error('❌ DataManager initialization failed:', result.error);
+        console.error('Init failed:', result.error);
         showToast('error', 'Connection Failed', 'Cannot connect to database');
         applications = getSampleApplications(); // Fallback
         return;
     }
     
-    console.log('✅ DataManager initialized successfully');
-    
     // Load applications from DataManager
     applications = window.DataManager.getAll();
-    console.log(`📊 Loaded ${applications.length} applications`);
     
     // Save login session
     await window.DataManager.saveLoginSession();
@@ -49,18 +57,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     initKeyboardShortcuts();
     initAdminLog(); // Initialize log panel BEFORE loading logs
     
-    // NOW load and display old logs from Supabase (after panel is ready)
-    console.log('📋 Loading previous session logs...');
+    // Load and display old logs from Supabase (after panel is ready)
     const logs = await window.DataManager.getLogs(50);
     if (logs && logs.length > 0) {
-        console.log(`✅ Found ${logs.length} previous logs`);
         // Logs come from DB newest first, reverse to show oldest first
         // Then each log is inserted at top, so newest ends up at top
         logs.reverse().forEach(log => {
             addAdminLog(log.log_type, log.title, log.message, false, log.created_at);
         });
-    } else {
-        console.log('ℹ️ No previous logs found');
     }
     
     // NOW add session started log (will appear at top)
@@ -68,14 +72,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         `Admin ${sessionStorage.getItem('adminUsername') || 'User'} logged in - Dashboard initialized successfully`
     );
     
-    // Listen for data updates from DataManager
-    window.addEventListener('dataUpdated', function() {
+    // Listen for data updates from DataManager (debounced for performance)
+    const debouncedUpdate = debounce(() => {
         applications = window.DataManager.getAll();
         updateAllStats();
         renderApplications();
         renderRecentApplications();
         updateCharts();
-    });
+    }, 300);
+    
+    window.addEventListener('dataUpdated', debouncedUpdate);
     
     // Start Google Sheets sync
     if (window.SheetsSync) {
@@ -97,15 +103,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Update time every minute
     setInterval(initDateTime, 60000);
     
-    // Auto-refresh stats every 30 seconds (debounced)
-    let statsUpdateTimer;
-    setInterval(function() {
-        clearTimeout(statsUpdateTimer);
-        statsUpdateTimer = setTimeout(() => {
-            updateAllStats();
-            addTooltips();
-        }, 100);
-    }, 30000);
+    // Auto-refresh stats every 60 seconds (optimized)
+    setInterval(debounce(() => {
+        updateAllStats();
+        addTooltips();
+    }, 500), 60000);
     
     // Sync data across tabs/devices via Supabase real-time
     // (Real-time subscription handled in supabase-config.js)
@@ -512,6 +514,7 @@ function updateAllStats() {
     
     // Update badges
     document.getElementById('pendingBadge').textContent = pending;
+    document.getElementById('notificationCount').textContent = pending;
     
     // Update tab counts
     document.getElementById('allCount').textContent = total;

@@ -5,7 +5,7 @@
 
 const SHEETS_CONFIG = {
     sheetId: '1jyY4SI-cIHfj-Q-vhAy61IigF7zi9DE2nIkDmUe-IO4',
-    syncInterval: 10000 // 10 seconds
+    syncInterval: 30000 // 30 seconds - optimized for multiple concurrent users
 };
 
 let syncTimer = null;
@@ -15,12 +15,10 @@ let lastSyncHash = null;
 // START AUTO SYNC
 // ============================================
 function startSheetsSync() {
-    console.log('🔄 Starting Google Sheets sync...');
-    
     // Initial sync
     syncFromSheets();
     
-    // Auto sync every 10 seconds
+    // Auto sync every 30 seconds
     syncTimer = setInterval(syncFromSheets, SHEETS_CONFIG.syncInterval);
     
     // Pause when tab not visible
@@ -60,13 +58,15 @@ async function syncFromSheets() {
         lastSyncHash = currentHash;
         
         const entries = parseCSV(csvText);
-        console.log(`📊 Found ${entries.length} entries in Google Sheets`);
         
         // Add only NEW entries to Supabase
         await addNewEntriesToSupabase(entries);
         
     } catch (error) {
-        console.error('❌ Sheets sync error:', error.message);
+        // Silent fail - only log critical errors
+        if (error.message !== 'HTTP 429') { // Ignore rate limit errors
+            console.error('Sync error:', error.message);
+        }
     }
 }
 
@@ -75,7 +75,6 @@ async function syncFromSheets() {
 // ============================================
 async function addNewEntriesToSupabase(sheetEntries) {
     if (!window.DataManager || !window.DataManager.isReady()) {
-        console.warn('⚠️ Data Manager not ready');
         return;
     }
     
@@ -91,13 +90,11 @@ async function addNewEntriesToSupabase(sheetEntries) {
         // Get Supabase client from DataManager (reuse existing instance)
         const supabase = window.DataManager.getSupabaseClient();
         if (!supabase) {
-            console.error('❌ Could not get Supabase client from DataManager');
             return;
         }
         
-        // UPDATE existing entries with correct data from sheets (fix "no" course issue)
+        // UPDATE existing entries with correct data from sheets
         if (existingEntries.length > 0) {
-            console.log(`🔄 Updating ${existingEntries.length} existing entries with latest sheet data...`);
             for (const entry of existingEntries) {
                 const existingApp = existingApps.find(app => app.id === entry.id);
                 // Only update if status is still Pending (don't overwrite approved/rejected)
@@ -123,7 +120,6 @@ async function addNewEntriesToSupabase(sheetEntries) {
                         .eq('id', entry.id);
                 }
             }
-            console.log(`✅ Updated ${existingEntries.length} applications`);
         }
         
         if (newEntries.length === 0) {
@@ -134,8 +130,6 @@ async function addNewEntriesToSupabase(sheetEntries) {
             return;
         }
         
-        console.log(`🆕 Adding ${newEntries.length} new entries to Supabase...`);
-        
         // Insert new entries
         const { data, error } = await supabase
             .from('applications')
@@ -143,21 +137,19 @@ async function addNewEntriesToSupabase(sheetEntries) {
         
         if (error) throw error;
         
-        console.log(`✅ Added ${newEntries.length} new applications`);
-        
         // Reload data
         if (window.DataManager && window.DataManager.reload) {
             await window.DataManager.reload();
         }
         
-        // Show notification
-        if (window.showToast) {
+        // Show notification only for new entries
+        if (window.showToast && newEntries.length > 0) {
             window.showToast('success', '🆕 New Applications', 
-                `${newEntries.length} new application(s) from Google Sheets`);
+                `${newEntries.length} new application(s)`);
         }
         
     } catch (error) {
-        console.error('❌ Error adding entries:', error);
+        // Silent fail
     }
 }
 
@@ -169,10 +161,6 @@ function parseCSV(csv) {
     if (lines.length < 2) return [];
     
     const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-    
-    // Debug: Show all column headers from Google Sheet
-    console.log('📋 Google Sheet columns:', headers);
-    
     const entries = [];
     
     for (let i = 1; i < lines.length; i++) {
@@ -239,18 +227,14 @@ function convertRowToSupabaseFormat(row, index) {
                        !lower.includes('taking this');
             });
             if (backupKeys.length > 0) {
-                console.log(`📚 Course column: "${backupKeys[0]}" = "${row[backupKeys[0]]}"`);
                 return row[backupKeys[0]];
             }
         }
         
         if (courseKeys.length > 0) {
-            console.log(`📚 Course column: "${courseKeys[0]}" = "${row[courseKeys[0]]}"`);
             return row[courseKeys[0]];
         }
         
-        // Last resort: check all columns and log them for debugging
-        console.log('⚠️ Could not find course column. All columns:', Object.keys(row));
         return '';
     };
     
@@ -333,5 +317,3 @@ function hashString(str) {
 window.SheetsSync = {
     start: startSheetsSync
 };
-
-console.log('📦 Sheets Sync loaded');

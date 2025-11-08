@@ -19,8 +19,6 @@ let isInitialized = false;
 // ============================================
 async function initDataManager() {
     try {
-        console.log('🚀 Initializing Data Manager...');
-        
         // Check if Supabase library is loaded
         if (typeof window.supabase === 'undefined') {
             throw new Error('Supabase library not loaded');
@@ -36,8 +34,6 @@ async function initDataManager() {
         const { error } = await supabaseClient.from('applications').select('count').limit(1);
         if (error) throw error;
         
-        console.log('✅ Supabase connected');
-        
         // Load initial data
         await loadAllData();
         
@@ -45,12 +41,11 @@ async function initDataManager() {
         setupRealtimeSync();
         
         isInitialized = true;
-        console.log('✅ Data Manager initialized');
         
         return { success: true };
         
     } catch (error) {
-        console.error('❌ Data Manager initialization failed:', error);
+        console.error('Init failed:', error);
         return { success: false, error: error.message };
     }
 }
@@ -60,8 +55,6 @@ async function initDataManager() {
 // ============================================
 async function loadAllData() {
     try {
-        console.log('📥 Loading data from Supabase...');
-        
         const { data, error } = await supabaseClient
             .from('applications')
             .select('*')
@@ -72,15 +65,13 @@ async function loadAllData() {
         // Convert to app format
         applicationsData = (data || []).map(convertSupabaseToApp);
         
-        console.log(`✅ Loaded ${applicationsData.length} applications`);
-        
         // Trigger UI update
         triggerDataUpdate();
         
         return applicationsData;
         
     } catch (error) {
-        console.error('❌ Load error:', error);
+        console.error('Load error:', error);
         throw error;
     }
 }
@@ -113,8 +104,6 @@ function getApplicationById(id) {
 // ============================================
 async function approveApplication(id, paymentDetails) {
     try {
-        console.log('✅ Approving application:', id);
-        
         const now = new Date().toISOString();
         const deviceInfo = getDeviceInfo();
         
@@ -141,8 +130,6 @@ async function approveApplication(id, paymentDetails) {
         
         if (error) throw error;
         
-        console.log('✅ Application approved in Supabase');
-        
         // Update local data
         const index = applicationsData.findIndex(app => app.id === id);
         if (index !== -1) {
@@ -161,7 +148,7 @@ async function approveApplication(id, paymentDetails) {
         return { success: true, data };
         
     } catch (error) {
-        console.error('❌ Approve error:', error);
+        console.error('Approve error:', error);
         return { success: false, error: error.message };
     }
 }
@@ -171,8 +158,6 @@ async function approveApplication(id, paymentDetails) {
 // ============================================
 async function rejectApplication(id, reason) {
     try {
-        console.log('❌ Rejecting application:', id);
-        
         const now = new Date().toISOString();
         const deviceInfo = getDeviceInfo();
         
@@ -196,8 +181,6 @@ async function rejectApplication(id, reason) {
             .single();
         
         if (error) throw error;
-        
-        console.log('✅ Application rejected in Supabase');
         
         // Update local data
         const index = applicationsData.findIndex(app => app.id === id);
@@ -224,16 +207,12 @@ async function rejectApplication(id, reason) {
 // ============================================
 async function deleteApplication(id) {
     try {
-        console.log('🗑️ Deleting application:', id);
-        
         const { error } = await supabaseClient
             .from('applications')
             .delete()
             .eq('id', id);
         
         if (error) throw error;
-        
-        console.log('✅ Application deleted from Supabase');
         
         // Remove from local data
         const index = applicationsData.findIndex(app => app.id === id);
@@ -247,7 +226,7 @@ async function deleteApplication(id) {
         return { success: true };
         
     } catch (error) {
-        console.error('❌ Delete error:', error);
+        console.error('Delete error:', error);
         return { success: false, error: error.message };
     }
 }
@@ -330,21 +309,14 @@ async function saveToApprovedTable(application) {
             approved_by_browser: deviceInfo.browser
         };
         
-        console.log('💾 Saving to approved_applications table:', approvedData);
         const { data, error } = await supabaseClient.from('approved_applications').insert([approvedData]);
         
         if (error) {
-            console.error('❌❌❌ ERROR SAVING TO APPROVED TABLE ❌❌❌');
-            console.error('Error details:', error);
-            console.error('Error message:', error.message);
-            console.error('Error code:', error.code);
-            console.error('Data tried to insert:', approvedData);
+            console.error('Approved table error:', error.message);
             throw error;
         }
-        
-        console.log('✅✅✅ SUCCESSFULLY SAVED TO APPROVED TABLE:', data);
     } catch (error) {
-        console.error('❌❌❌ CAUGHT ERROR IN APPROVED TABLE:', error.message, error);
+        console.error('Approved table save failed:', error.message);
     }
 }
 
@@ -366,21 +338,14 @@ async function saveToRejectedTable(application) {
             rejected_by_browser: deviceInfo.browser
         };
         
-        console.log('💾 Saving to rejected_applications table:', rejectedData);
         const { data, error } = await supabaseClient.from('rejected_applications').insert([rejectedData]);
         
         if (error) {
-            console.error('❌❌❌ ERROR SAVING TO REJECTED TABLE ❌❌❌');
-            console.error('Error details:', error);
-            console.error('Error message:', error.message);
-            console.error('Error code:', error.code);
-            console.error('Data tried to insert:', rejectedData);
+            console.error('Rejected table error:', error.message);
             throw error;
         }
-        
-        console.log('✅✅✅ SUCCESSFULLY SAVED TO REJECTED TABLE:', data);
     } catch (error) {
-        console.error('❌❌❌ CAUGHT ERROR IN REJECTED TABLE:', error.message, error);
+        console.error('Rejected table save failed:', error.message);
     }
 }
 
@@ -406,17 +371,11 @@ async function savePayment(application, paymentDetails) {
         const { data, error } = await supabaseClient.from('payments').insert([paymentData]);
         
         if (error) {
-            console.error('❌❌❌ ERROR SAVING PAYMENT ❌❌❌');
-            console.error('Error details:', error);
-            console.error('Error message:', error.message);
-            console.error('Error code:', error.code);
-            console.error('Data tried to insert:', paymentData);
+            console.error('Payment save error:', error.message);
             throw error;
         }
-        
-        console.log('✅✅✅ PAYMENT SAVED SUCCESSFULLY:', data);
     } catch (error) {
-        console.error('❌❌❌ CAUGHT ERROR IN PAYMENT SAVE:', error.message, error);
+        console.error('Payment save failed:', error.message);
     }
 }
 
@@ -429,13 +388,10 @@ function setupRealtimeSync() {
         .on('postgres_changes', 
             { event: '*', schema: 'public', table: 'applications' },
             async (payload) => {
-                console.log('📡 Real-time update:', payload.eventType);
                 await loadAllData();
             }
         )
         .subscribe();
-    
-    console.log('🔴 Real-time sync active');
 }
 
 // ============================================
@@ -452,8 +408,6 @@ function triggerDataUpdate() {
 // ============================================
 async function saveLog(type, title, message) {
     try {
-        console.log('💾 Saving log to Supabase:', type, title);
-        
         const deviceInfo = getDeviceInfo();
         
         const logData = {
@@ -473,19 +427,16 @@ async function saveLog(type, title, message) {
             throw error;
         }
         
-        console.log('✅ Log saved successfully');
         return { success: true, data };
         
     } catch (error) {
-        console.error('❌ Error saving log:', error);
+        console.error('Error saving log:', error);
         return { success: false, error: error.message };
     }
 }
 
 async function getLogs(limit = 50) {
     try {
-        console.log(`📋 Loading ${limit} logs from Supabase...`);
-        
         const { data, error } = await supabaseClient
             .from('admin_logs')
             .select('*')
@@ -493,15 +444,14 @@ async function getLogs(limit = 50) {
             .limit(limit);
         
         if (error) {
-            console.error('❌ Error loading logs:', error);
+            console.error('Error loading logs:', error);
             throw error;
         }
         
-        console.log(`✅ Loaded ${data?.length || 0} logs from database`);
         return data || [];
         
     } catch (error) {
-        console.error('❌ Error loading logs:', error);
+        console.error('Error loading logs:', error);
         return [];
     }
 }
@@ -557,5 +507,3 @@ window.DataManager = {
     // Supabase client (for sheets-sync)
     getSupabaseClient: () => supabaseClient
 };
-
-console.log('📦 Data Manager loaded');

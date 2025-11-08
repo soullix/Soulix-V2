@@ -359,13 +359,14 @@ async function savePayment(application, paymentDetails) {
             application_id: application.id,
             student_name: application.name,
             student_email: application.email,
+            student_phone: application.phone || 'Not provided',
             course: application.course,
             payment_amount: paymentDetails.amount,
             payment_type: paymentDetails.type,
             payment_status: paymentDetails.status || 'Paid',
             upi_transaction_id: application.upi_transaction_id,
             payment_date: new Date().toISOString()
-            // Removed: processed_by, device_type, browser - columns don't exist in payments table
+            // Note: student_phone is required by table, using 'Not provided' if null
         };
         
         console.log('💰 Saving to payments table:', paymentData);

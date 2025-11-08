@@ -136,11 +136,27 @@ async function approveApplication(id, paymentDetails) {
             applicationsData[index] = convertSupabaseToApp(data);
         }
         
-        // Save to approved_applications table
-        await saveToApprovedTable(data);
+        // Save to approved_applications table (critical - must succeed)
+        try {
+            await saveToApprovedTable(data);
+        } catch (approvedError) {
+            console.error('CRITICAL: Failed to save to approved_applications table:', approvedError);
+            // Rollback: Update status back to Pending
+            await supabaseClient
+                .from('applications')
+                .update({ status: 'Pending', approved_date: null, payment_amount: null, payment_status: 'Pending' })
+                .eq('id', id);
+            throw new Error('Failed to save approval record. Approval cancelled.');
+        }
         
-        // Save payment transaction
-        await savePayment(data, paymentDetails);
+        // Save payment transaction (critical - must succeed)
+        try {
+            await savePayment(data, paymentDetails);
+        } catch (paymentError) {
+            console.error('CRITICAL: Failed to save payment record:', paymentError);
+            // Payment tracking is critical, fail the approval
+            throw new Error('Failed to save payment record. Approval cancelled.');
+        }
         
         // Reload to ensure sync
         await loadAllData();
@@ -149,7 +165,7 @@ async function approveApplication(id, paymentDetails) {
         
     } catch (error) {
         console.error('Approve error:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: error.message || 'Approval failed' };
     }
 }
 
@@ -188,8 +204,18 @@ async function rejectApplication(id, reason) {
             applicationsData[index] = convertSupabaseToApp(data);
         }
         
-        // Save to rejected_applications table
-        await saveToRejectedTable(data);
+        // Save to rejected_applications table (critical - must succeed)
+        try {
+            await saveToRejectedTable(data);
+        } catch (rejectError) {
+            console.error('CRITICAL: Failed to save to rejected_applications table:', rejectError);
+            // Rollback: Update status back to Pending
+            await supabaseClient
+                .from('applications')
+                .update({ status: 'Pending', rejected_date: null, rejection_reason: null })
+                .eq('id', id);
+            throw new Error('Failed to save rejection record. Rejection cancelled.');
+        }
         
         // Reload to ensure sync
         await loadAllData();
@@ -197,8 +223,8 @@ async function rejectApplication(id, reason) {
         return { success: true, data };
         
     } catch (error) {
-        console.error('❌ Reject error:', error);
-        return { success: false, error: error.message };
+        console.error('Reject error:', error);
+        return { success: false, error: error.message || 'Rejection failed' };
     }
 }
 
@@ -312,11 +338,14 @@ async function saveToApprovedTable(application) {
         const { data, error } = await supabaseClient.from('approved_applications').insert([approvedData]);
         
         if (error) {
-            console.error('Approved table error:', error.message);
+            console.error('Approved table error:', error);
             throw error;
         }
+        
+        return { success: true, data };
     } catch (error) {
-        console.error('Approved table save failed:', error.message);
+        console.error('Approved table save failed:', error);
+        throw error; // Propagate error to caller
     }
 }
 
@@ -341,11 +370,14 @@ async function saveToRejectedTable(application) {
         const { data, error } = await supabaseClient.from('rejected_applications').insert([rejectedData]);
         
         if (error) {
-            console.error('Rejected table error:', error.message);
+            console.error('Rejected table error:', error);
             throw error;
         }
+        
+        return { success: true, data };
     } catch (error) {
-        console.error('Rejected table save failed:', error.message);
+        console.error('Rejected table save failed:', error);
+        throw error; // Propagate error to caller
     }
 }
 
@@ -364,17 +396,19 @@ async function savePayment(application, paymentDetails) {
             payment_status: paymentDetails.status || 'Paid',
             upi_transaction_id: application.upi_transaction_id,
             payment_date: new Date().toISOString()
-            // Note: student_phone is required by table, using 'Not provided' if null
-        };
-        
-        console.log('💰 Saving to payments table:', paymentData);
         const { data, error } = await supabaseClient.from('payments').insert([paymentData]);
         
         if (error) {
-            console.error('Payment save error:', error.message);
+            console.error('Payment save error:', error);
             throw error;
         }
+        
+        return { success: true, data };
     } catch (error) {
+        console.error('Payment save failed:', error);
+        throw error; // Propagate error to caller
+    }
+}   } catch (error) {
         console.error('Payment save failed:', error.message);
     }
 }

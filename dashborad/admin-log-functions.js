@@ -61,11 +61,9 @@ function initAdminLog() {
 }
 
 function addAdminLog(type, title, message, saveToSupabaseFlag = true, timestamp = null) {
-    console.log(`📝 Adding log: ${type} | ${title} | Save:${saveToSupabaseFlag} | Timestamp:${timestamp ? new Date(timestamp).toLocaleString() : 'NOW'}`);
-    
     const logBody = document.getElementById('adminLogBody');
     if (!logBody) {
-        console.error('❌ adminLogBody element not found!');
+        console.error('adminLogBody element not found');
         return;
     }
     
@@ -81,8 +79,6 @@ function addAdminLog(type, title, message, saveToSupabaseFlag = true, timestamp 
     // Use provided timestamp or current time
     const logTime = timestamp ? new Date(timestamp) : new Date();
     const timeStr = logTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    
-    console.log(`  ⏰ Time: ${timeStr}`);
     
     // Icon based on type
     let icon = '';
@@ -110,31 +106,15 @@ function addAdminLog(type, title, message, saveToSupabaseFlag = true, timestamp 
         items[items.length - 1].remove();
     }
     
-    console.log(`  ✅ Log added to UI. Total logs: ${items.length}`);
-    
     // Update badge count in sidebar
     updateLogBadge();
     
     // Save to Supabase using new DataManager
-    if (saveToSupabaseFlag) {
-        console.log(`  🔍 Checking DataManager availability...`);
-        console.log(`    window.DataManager exists: ${!!window.DataManager}`);
-        console.log(`    window.DataManager.saveLog exists: ${!!(window.DataManager && window.DataManager.saveLog)}`);
-        
-        if (window.DataManager && window.DataManager.saveLog) {
-            console.log(`  💾 Calling DataManager.saveLog('${type}', '${title}', '${message}')`);
-            window.DataManager.saveLog(type, title, message)
-                .then(result => {
-                    console.log(`  ✅ saveLog returned:`, result);
-                })
-                .catch(err => {
-                    console.error('  ❌ Failed to save log to Supabase:', err);
-                });
-        } else {
-            console.error(`  ❌ DataManager or saveLog not available!`);
-        }
-    } else {
-        console.log(`  ⏭️ Skipping Supabase save (saveToSupabaseFlag = false)`);
+    if (saveToSupabaseFlag && window.DataManager && window.DataManager.saveLog) {
+        window.DataManager.saveLog(type, title, message)
+            .catch(err => {
+                console.error('Failed to save log:', err);
+            });
     }
 }
 

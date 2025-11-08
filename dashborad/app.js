@@ -104,20 +104,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     setInterval(initDateTime, 60000);
     
     // Auto-refresh stats every 60 seconds (optimized)
-    setInterval(debounce(() => {
+    setInterval(() => {
         updateAllStats();
         addTooltips();
-    }, 500), 60000);
+    }, 60000);
     
-    // Sync data across tabs/devices via Supabase real-time
-    // (Real-time subscription handled in supabase-config.js)
-    window.addEventListener('dataUpdated', function(e) {
-        console.log('📡 Data updated event:', e.detail);
-        updateAllStats();
-        renderApplications();
-        renderRecentApplications();
-        updateCharts();
-    });
+    // Note: Sync data across tabs/devices via Supabase real-time is handled by the
+    // debounced dataUpdated listener above (lines 75-84) - no duplicate listener needed
 });
 
 // Log Login Session Details
@@ -424,7 +417,6 @@ async function loadDataFromSupabase() {
 
 // Legacy loadData function - now just calls loadDataFromSupabase
 function loadData() {
-    console.warn('⚠️ loadData() is deprecated - using Supabase');
     // If Supabase available, load from there
     if (typeof loadDataFromSupabase === 'function') {
         loadDataFromSupabase();
@@ -435,8 +427,6 @@ function loadData() {
 // SAVE DATA TO SUPABASE (NO LOCALSTORAGE)
 // ============================================
 function saveData() {
-    console.log('💾 Saving data to Supabase...');
-    
     // Dispatch custom event for same-tab updates
     window.dispatchEvent(new CustomEvent('dataUpdated', { 
         detail: { timestamp: Date.now(), source: 'save' } 

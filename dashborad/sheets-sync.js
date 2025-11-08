@@ -5,11 +5,15 @@
 
 const SHEETS_CONFIG = {
     sheetId: '1jyY4SI-cIHfj-Q-vhAy61IigF7zi9DE2nIkDmUe-IO4',
-    syncInterval: 30000 // 30 seconds - optimized for multiple concurrent users
+    syncInterval: 30000, // 30 seconds - optimized for multiple concurrent users
+    backoffStart: 30000, // Start backoff at 30 seconds
+    backoffMax: 300000 // Max backoff at 5 minutes
 };
 
 let syncTimer = null;
 let lastSyncHash = null;
+let backoffDelay = 0; // Current backoff delay in ms
+let lastBackoffTime = 0; // Timestamp when backoff was set
 
 // ============================================
 // START AUTO SYNC
@@ -36,6 +40,19 @@ function startSheetsSync() {
 // SYNC FROM GOOGLE SHEETS
 // ============================================
 async function syncFromSheets() {
+    // Check if we're in backoff period
+    if (backoffDelay > 0) {
+        const elapsed = Date.now() - lastBackoffTime;
+        if (elapsed < backoffDelay) {
+            const remaining = Math.ceil((backoffDelay - elapsed) / 1000);
+            console.warn(`Sync paused: rate limit backoff (${remaining}s remaining)`);
+            return;
+        }
+        // Backoff period expired, reset
+        backoffDelay = 0;
+        lastBackoffTime = 0;
+    }
+    
     try {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${SHEETS_CONFIG.sheetId}/export?format=csv&gid=0`;
         
@@ -53,6 +70,9 @@ async function syncFromSheets() {
         // Check if data changed
         const currentHash = hashString(csvText);
         if (currentHash === lastSyncHash) {
+            // Successful sync - reset backoff
+            backoffDelay = 0;
+            lastBackoffTime = 0;
             return; // No changes
         }
         lastSyncHash = currentHash;
@@ -62,9 +82,25 @@ async function syncFromSheets() {
         // Add only NEW entries to Supabase
         await addNewEntriesToSupabase(entries);
         
+        // Successful sync - reset backoff
+        backoffDelay = 0;
+        lastBackoffTime = 0;
+        
     } catch (error) {
-        // Silent fail - only log critical errors
-        if (error.message !== 'HTTP 429') { // Ignore rate limit errors
+        // Handle HTTP 429 (rate limit) with exponential backoff
+        if (error.message === 'HTTP 429') {
+            // Calculate new backoff delay (exponential)
+            if (backoffDelay === 0) {
+                backoffDelay = SHEETS_CONFIG.backoffStart;
+            } else {
+                backoffDelay = Math.min(backoffDelay * 2, SHEETS_CONFIG.backoffMax);
+            }
+            lastBackoffTime = Date.now();
+            
+            const backoffSeconds = Math.ceil(backoffDelay / 1000);
+            console.warn(`⚠️ Rate limit hit (HTTP 429) - backing off for ${backoffSeconds}s`);
+        } else {
+            // Other errors - log as errors
             console.error('Sync error:', error.message);
         }
     }
@@ -149,7 +185,7 @@ async function addNewEntriesToSupabase(sheetEntries) {
         }
         
     } catch (error) {
-        // Silent fail
+        console.error('Failed to add entries to Supabase:', error);
     }
 }
 

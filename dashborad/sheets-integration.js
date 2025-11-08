@@ -42,9 +42,130 @@ async function fetchSheetData() {
         
         lastDataHash = currentHash;
         
-        const applications = convertSheetDataToApplications(data);
+        const sheetApplications = convertSheetDataToApplications(data);
         
-        // Update local storage
+        console.log(`📊 Google Sheets: Found ${sheetApplications.length} total entries`);
+        
+        // ============================================
+        // NEW STRATEGY: Supabase is Single Source of Truth
+        // 1. Load ALL data from Supabase
+        // 2. Check which Sheet entries are NEW (not in Supabase)
+        // 3. Add only NEW entries to Supabase
+        // 4. Update UI with Supabase data
+        // ============================================
+        
+        if (typeof supabase !== 'undefined' && supabase) {
+            try {
+                // Get ALL applications from Supabase
+                const { data: supabaseData, error } = await supabase
+                    .from('applications')
+                    .select('*');
+                
+                if (error) throw error;
+                
+                console.log(`☁️ Supabase: Found ${supabaseData?.length || 0} existing entries`);
+                
+                // Find NEW entries from Sheets (not in Supabase)
+                const supabaseIds = new Set((supabaseData || []).map(app => app.id));
+                const newEntries = sheetApplications.filter(app => !supabaseIds.has(app.id));
+                
+                console.log(`🆕 New entries to add: ${newEntries.length}`);
+                
+                // Add NEW entries to Supabase
+                if (newEntries.length > 0) {
+                    for (const app of newEntries) {
+                        try {
+                            // Convert to Supabase format with ISO dates
+                            const supabaseApp = {
+                                id: app.id,
+                                name: app.name,
+                                email: app.email,
+                                phone: app.phone,
+                                course: app.course,
+                                status: 'Pending', // Always pending from Sheets
+                                applied_date: new Date(app.appliedDate).toISOString(),
+                                approved_date: null,
+                                rejected_date: null,
+                                payment_type: app.paymentType || null,
+                                payment_amount: app.paymentAmount || null,
+                                payment_status: 'Pending',
+                                upi_transaction_id: app.upiTransactionId || null,
+                                installments_paid: 0,
+                                total_installments: app.totalInstallments || 2,
+                                rejection_reason: null,
+                                approved_by: null,
+                                rejected_by: null
+                            };
+                            
+                            const { error: insertError } = await supabase
+                                .from('applications')
+                                .insert([supabaseApp]);
+                            
+                            if (insertError) throw insertError;
+                            
+                            console.log(`✅ Added new entry: ${app.name}`);
+                        } catch (err) {
+                            console.error(`❌ Failed to add ${app.name}:`, err.message);
+                        }
+                    }
+                    
+                    // Reload from Supabase after adding new entries
+                    const { data: updatedData } = await supabase
+                        .from('applications')
+                        .select('*');
+                    
+                    // Convert Supabase format to local format
+                    const applications = (updatedData || []).map(app => ({
+                        id: app.id,
+                        name: app.name,
+                        email: app.email,
+                        phone: app.phone,
+                        course: app.course,
+                        status: app.status,
+                        appliedDate: app.applied_date,
+                        approvedDate: app.approved_date,
+                        rejectedDate: app.rejected_date,
+                        paymentType: app.payment_type,
+                        paymentAmount: app.payment_amount,
+                        paymentStatus: app.payment_status,
+                        upiTransactionId: app.upi_transaction_id,
+                        installmentsPaid: app.installments_paid,
+                        totalInstallments: app.total_installments,
+                        rejectionReason: app.rejection_reason,
+                        approvedBy: app.approved_by ? JSON.parse(app.approved_by) : null,
+                        rejectedBy: app.rejected_by ? JSON.parse(app.rejected_by) : null
+                    }));
+                    
+                    // Update localStorage with Supabase data
+                    localStorage.setItem('soulixApplications', JSON.stringify(applications));
+                    
+                    console.log(`✅ Synced: ${applications.length} total applications (${newEntries.length} new added)`);
+                    
+                    // Update UI
+                    requestAnimationFrame(() => {
+                        loadData();
+                        updateAllStats();
+                        renderApplications();
+                        renderRecentApplications();
+                        updateCharts();
+                    });
+                    
+                    return applications;
+                }
+                
+                // No new entries, just use Supabase data
+                console.log('✅ No new entries from Google Sheets');
+                return null;
+                
+            } catch (supabaseError) {
+                console.error('❌ Supabase sync error:', supabaseError);
+                // Fall back to old method if Supabase fails
+            }
+        }
+        
+        // Fallback: If Supabase not available, use old method
+        console.log('⚠️ Supabase not available, using localStorage only');
+        const applications = sheetApplications;
         localStorage.setItem('soulixApplications', JSON.stringify(applications));
         
         // Use requestAnimationFrame for smooth UI updates

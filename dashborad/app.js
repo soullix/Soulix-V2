@@ -29,59 +29,55 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             }
             
-            // DON'T replace all data from Supabase
-            // Instead, merge: Keep pending from localStorage (Google Sheets)
-            // But load approved/rejected from Supabase
+            // ============================================
+            // NEW STRATEGY: Load EVERYTHING from Supabase
+            // Supabase is now the single source of truth
+            // Google Sheets only adds NEW entries via sheets-integration.js
+            // ============================================
             
-            console.log('🔍 Before merge - applications.length:', applications.length);
-            console.log('📊 Before merge - Pending count:', applications.filter(app => app.status === 'Pending').length);
+            console.log('📥 Loading all data from Supabase...');
             
-            const { data: approvedData, error: approvedError } = await supabase.from('applications').select('*').eq('status', 'Approved');
-            const { data: rejectedData, error: rejectedError } = await supabase.from('applications').select('*').eq('status', 'Rejected');
+            const { data: allData, error: loadError } = await supabase
+                .from('applications')
+                .select('*')
+                .order('applied_date', { ascending: false });
             
-            console.log('📥 Supabase approved:', approvedData?.length || 0);
-            console.log('📥 Supabase rejected:', rejectedData?.length || 0);
-            
-            if (approvedError) console.error('❌ Approved query error:', approvedError);
-            if (rejectedError) console.error('❌ Rejected query error:', rejectedError);
-            
-            // Convert Supabase data to local format
-            const approvedApps = (approvedData || []).map(app => ({
-                id: app.id, name: app.name, email: app.email, phone: app.phone,
-                course: app.course, status: app.status, appliedDate: app.applied_date,
-                approvedDate: app.approved_date, paymentType: app.payment_type,
-                paymentAmount: app.payment_amount, paymentStatus: app.payment_status,
-                upiTransactionId: app.upi_transaction_id, approvedBy: app.approved_by,
-                installmentsPaid: app.installments_paid, totalInstallments: app.total_installments
-            }));
-            
-            const rejectedApps = (rejectedData || []).map(app => ({
-                id: app.id, name: app.name, email: app.email, phone: app.phone,
-                course: app.course, status: app.status, appliedDate: app.applied_date,
-                rejectedDate: app.rejected_date, rejectionReason: app.rejection_reason,
-                rejectedBy: app.rejected_by
-            }));
-            
-            // Get IDs of approved and rejected from Supabase
-            const processedIds = new Set([
-                ...approvedApps.map(app => app.id),
-                ...rejectedApps.map(app => app.id)
-            ]);
-            
-            // CRITICAL FIX: Filter out pending apps that are already approved/rejected in Supabase
-            const pendingApps = applications.filter(app => 
-                app.status === 'Pending' && !processedIds.has(app.id)
-            );
-            
-            console.log('📋 Pending from localStorage (after filtering duplicates):', pendingApps.length);
-            console.log('🗑️ Filtered out duplicates:', applications.filter(app => app.status === 'Pending').length - pendingApps.length);
-            
-            // Merge all: Pending from Sheets + Approved/Rejected from Supabase
-            applications = [...pendingApps, ...approvedApps, ...rejectedApps];
-            localStorage.setItem('soulixApplications', JSON.stringify(applications));
-            
-            console.log(`✅ After merge - Total: ${applications.length} (${pendingApps.length} pending, ${approvedApps.length} approved, ${rejectedApps.length} rejected)`);
-            console.log('💾 Saved merged data to localStorage');
+            if (loadError) {
+                console.error('❌ Error loading from Supabase:', loadError);
+            } else {
+                console.log(`☁️ Loaded ${allData?.length || 0} applications from Supabase`);
+                
+                // Convert Supabase format to local format
+                applications = (allData || []).map(app => ({
+                    id: app.id,
+                    name: app.name,
+                    email: app.email,
+                    phone: app.phone,
+                    course: app.course,
+                    status: app.status,
+                    appliedDate: app.applied_date,
+                    approvedDate: app.approved_date,
+                    rejectedDate: app.rejected_date,
+                    paymentType: app.payment_type,
+                    paymentAmount: app.payment_amount,
+                    paymentStatus: app.payment_status,
+                    upiTransactionId: app.upi_transaction_id,
+                    installmentsPaid: app.installments_paid,
+                    totalInstallments: app.total_installments,
+                    rejectionReason: app.rejection_reason,
+                    approvedBy: app.approved_by ? JSON.parse(app.approved_by) : null,
+                    rejectedBy: app.rejected_by ? JSON.parse(app.rejected_by) : null
+                }));
+                
+                // Update localStorage
+                localStorage.setItem('soulixApplications', JSON.stringify(applications));
+                
+                const pending = applications.filter(app => app.status === 'Pending').length;
+                const approved = applications.filter(app => app.status === 'Approved').length;
+                const rejected = applications.filter(app => app.status === 'Rejected').length;
+                
+                console.log(`✅ Loaded: ${applications.length} total (${pending} pending, ${approved} approved, ${rejected} rejected)`);
+            }
             
             // Save login session to Supabase
             await saveLoginSessionToSupabase();

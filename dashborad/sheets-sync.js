@@ -160,6 +160,10 @@ function parseCSV(csv) {
     if (lines.length < 2) return [];
     
     const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    
+    // Debug: Show all column headers from Google Sheet
+    console.log('📋 Google Sheet columns:', headers);
+    
     const entries = [];
     
     for (let i = 1; i < lines.length; i++) {

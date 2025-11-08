@@ -483,9 +483,7 @@ function initDateTime() {
 
 // Update Stats
 function updateAllStats() {
-    // Reload data from localStorage to ensure sync
-    loadData();
-    
+    // Data is already loaded from Supabase, just calculate stats
     const pending = applications.filter(app => app.status === 'Pending').length;
     const approved = applications.filter(app => app.status === 'Approved').length;
     const rejected = applications.filter(app => app.status === 'Rejected').length;

@@ -129,14 +129,10 @@ async function fetchSheetData() {
             errorDetails = 'Sheet must be public to sync';
         }
         
-        showToast('error', errorMessage, errorDetails + ' Using local data.');
+        showToast('error', errorMessage, errorDetails);
         
-        // Try to load from localStorage as fallback
-        const localData = localStorage.getItem('soulixApplications');
-        if (localData) {
-            console.log('📦 Using cached local data');
-            loadData();
-        }
+        // No fallback - Supabase is the only source
+        console.error('❌ Cannot sync from Google Sheets, but Supabase data remains intact');
         
         return null;
     }

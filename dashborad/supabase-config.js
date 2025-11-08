@@ -58,7 +58,7 @@ function setupRealtimeSubscription() {
 }
 
 // Handle Real-time Updates
-function handleRealtimeUpdate(payload) {
+async function handleRealtimeUpdate(payload) {
     const { eventType, new: newRecord, old: oldRecord } = payload;
     
     switch (eventType) {
@@ -69,7 +69,7 @@ function handleRealtimeUpdate(payload) {
             if (oldRecord.status !== newRecord.status) {
                 const statusEmoji = newRecord.status === 'Approved' ? '✅' : newRecord.status === 'Rejected' ? '❌' : '⏳';
                 addAdminLog('info', `${statusEmoji} Status Changed`, 
-                    `${newRecord.name} • ${oldRecord.status} → ${newRecord.status} • By ${newRecord.approved_by || newRecord.rejected_by || 'Unknown'}`);
+                    `${newRecord.name} • ${oldRecord.status} → ${newRecord.status}`);
             }
             break;
         case 'DELETE':
@@ -78,7 +78,14 @@ function handleRealtimeUpdate(payload) {
     }
     
     // Reload data from Supabase
-    syncFromSupabase();
+    console.log('🔄 Real-time update - reloading from Supabase...');
+    if (typeof loadDataFromSupabase === 'function') {
+        await loadDataFromSupabase();
+        updateAllStats();
+        renderApplications();
+        renderRecentApplications();
+        updateCharts();
+    }
 }
 
 // ============================================
@@ -130,9 +137,6 @@ async function syncFromSupabase() {
             approvedBy: app.approved_by,
             rejectedBy: app.rejected_by
         }));
-        
-        // Save to localStorage as backup
-        localStorage.setItem('soulixApplications', JSON.stringify(applications));
         
         // Update UI
         updateAllStats();

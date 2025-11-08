@@ -602,3 +602,117 @@ async function getAllPayments() {
         return [];
     }
 }
+
+// ============================================
+// AUTO-MIGRATE LOCALSTORAGE TO SUPABASE
+// ============================================
+async function autoMigrateToSupabase() {
+    if (!supabase) {
+        console.warn('⚠️ Supabase not available, skipping auto-migration');
+        return { success: 0, failed: 0, skipped: 0 };
+    }
+    
+    try {
+        // Check if migration already done
+        const migrationFlag = localStorage.getItem('supabaseMigrationDone');
+        if (migrationFlag === 'true') {
+            console.log('✅ Migration already completed previously');
+            return { success: 0, failed: 0, skipped: 0, alreadyDone: true };
+        }
+        
+        console.log('🚀 Starting auto-migration to Supabase...');
+        
+        // Get data from localStorage
+        const data = localStorage.getItem('soulixApplications');
+        if (!data) {
+            console.log('📭 No data in localStorage to migrate');
+            localStorage.setItem('supabaseMigrationDone', 'true');
+            return { success: 0, failed: 0, skipped: 0 };
+        }
+        
+        const applications = JSON.parse(data);
+        console.log(`📊 Found ${applications.length} applications to check`);
+        
+        let success = 0;
+        let failed = 0;
+        let skipped = 0;
+        
+        for (const app of applications) {
+            try {
+                // Check if already exists in Supabase
+                const { data: existing } = await supabase
+                    .from('applications')
+                    .select('id')
+                    .eq('id', app.id)
+                    .single();
+                
+                if (existing) {
+                    console.log(`⏭️ Skipped: ${app.name} (already in Supabase)`);
+                    skipped++;
+                    continue;
+                }
+                
+                // Helper to convert dates to ISO format
+                function toISO(dateStr) {
+                    if (!dateStr) return null;
+                    try {
+                        const date = new Date(dateStr);
+                        return date.toISOString();
+                    } catch (e) {
+                        return null;
+                    }
+                }
+                
+                // Convert to Supabase format
+                const supabaseApp = {
+                    id: app.id,
+                    name: app.name,
+                    email: app.email,
+                    phone: app.phone,
+                    course: app.course,
+                    status: app.status,
+                    applied_date: toISO(app.appliedDate),
+                    approved_date: toISO(app.approvedDate),
+                    rejected_date: toISO(app.rejectedDate),
+                    payment_type: app.paymentType || null,
+                    payment_amount: app.paymentAmount || null,
+                    payment_status: app.paymentStatus || null,
+                    upi_transaction_id: app.upiTransactionId || null,
+                    installments_paid: app.installmentsPaid || 0,
+                    total_installments: app.totalInstallments || 0,
+                    rejection_reason: app.rejectionReason || null,
+                    approved_by: app.approvedBy ? JSON.stringify(app.approvedBy) : null,
+                    rejected_by: app.rejectedBy ? JSON.stringify(app.rejectedBy) : null
+                };
+                
+                const { error } = await supabase
+                    .from('applications')
+                    .insert([supabaseApp]);
+                
+                if (error) throw error;
+                
+                console.log(`✅ Migrated: ${app.name}`);
+                success++;
+                
+            } catch (error) {
+                console.error(`❌ Failed to migrate ${app.name}:`, error.message);
+                failed++;
+            }
+        }
+        
+        // Mark migration as complete
+        localStorage.setItem('supabaseMigrationDone', 'true');
+        
+        console.log(`🎉 Migration complete: ${success} success, ${skipped} skipped, ${failed} failed`);
+        
+        if (success > 0) {
+            addAdminLog('success', '📦 Data Migrated', `Successfully migrated ${success} applications to Supabase`);
+        }
+        
+        return { success, failed, skipped };
+        
+    } catch (error) {
+        console.error('❌ Auto-migration error:', error);
+        return { success: 0, failed: 0, skipped: 0, error: error.message };
+    }
+}

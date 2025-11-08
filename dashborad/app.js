@@ -21,6 +21,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (connectionStatus.connected) {
             console.log('✅ Supabase connected successfully');
             
+            // Auto-migrate localStorage data to Supabase (first time only)
+            if (typeof autoMigrateToSupabase === 'function') {
+                const migrationResult = await autoMigrateToSupabase();
+                if (migrationResult.success > 0) {
+                    console.log(`✅ Auto-migration: ${migrationResult.success} applications migrated`);
+                }
+            }
+            
             // DON'T replace all data from Supabase
             // Instead, merge: Keep pending from localStorage (Google Sheets)
             // But load approved/rejected from Supabase
@@ -37,17 +45,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (approvedError) console.error('❌ Approved query error:', approvedError);
             if (rejectedError) console.error('❌ Rejected query error:', rejectedError);
             
-            // Merge approved and rejected from Supabase with pending from localStorage
-            const pendingApps = applications.filter(app => app.status === 'Pending');
-            console.log('📋 Pending from localStorage:', pendingApps.length);
-            
             // Convert Supabase data to local format
             const approvedApps = (approvedData || []).map(app => ({
                 id: app.id, name: app.name, email: app.email, phone: app.phone,
                 course: app.course, status: app.status, appliedDate: app.applied_date,
                 approvedDate: app.approved_date, paymentType: app.payment_type,
                 paymentAmount: app.payment_amount, paymentStatus: app.payment_status,
-                upiTransactionId: app.upi_transaction_id, approvedBy: app.approved_by
+                upiTransactionId: app.upi_transaction_id, approvedBy: app.approved_by,
+                installmentsPaid: app.installments_paid, totalInstallments: app.total_installments
             }));
             
             const rejectedApps = (rejectedData || []).map(app => ({
@@ -56,6 +61,20 @@ document.addEventListener('DOMContentLoaded', async function() {
                 rejectedDate: app.rejected_date, rejectionReason: app.rejection_reason,
                 rejectedBy: app.rejected_by
             }));
+            
+            // Get IDs of approved and rejected from Supabase
+            const processedIds = new Set([
+                ...approvedApps.map(app => app.id),
+                ...rejectedApps.map(app => app.id)
+            ]);
+            
+            // CRITICAL FIX: Filter out pending apps that are already approved/rejected in Supabase
+            const pendingApps = applications.filter(app => 
+                app.status === 'Pending' && !processedIds.has(app.id)
+            );
+            
+            console.log('📋 Pending from localStorage (after filtering duplicates):', pendingApps.length);
+            console.log('🗑️ Filtered out duplicates:', applications.filter(app => app.status === 'Pending').length - pendingApps.length);
             
             // Merge all: Pending from Sheets + Approved/Rejected from Supabase
             applications = [...pendingApps, ...approvedApps, ...rejectedApps];

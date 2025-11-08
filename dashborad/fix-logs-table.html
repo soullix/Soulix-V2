@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Admin Logs Table</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a2e; color: #eee; }
+        button { padding: 10px 20px; margin: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #result { background: #16213e; padding: 20px; border-radius: 10px; margin-top: 20px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Fix Admin Logs Table</h1>
+    <button onclick="checkTable()">1. Check Table Structure</button>
+    <button onclick="createTable()">2. Create/Fix Table</button>
+    <button onclick="testInsert()">3. Test Insert</button>
+    <div id="result"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient(
+            'https://xmtxeagxnqfczenqwizz.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtdHhlYWd4bnFmY3plbnF3aXp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0Mzg3MTgsImV4cCI6MjA3ODAxNDcxOH0.NUTpXhNfoXkcCrWhGE2-j4V6p9VydN6EkLPUCBVqeh8'
+        );
+
+        async function checkTable() {
+            const result = document.getElementById('result');
+            result.innerHTML = '⏳ Checking table...\n\n';
+            
+            try {
+                // Try to select with limit 1 to see structure
+                const { data, error } = await supabase
+                    .from('admin_logs')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) {
+                    result.innerHTML += `❌ ERROR: ${error.message}\n\n`;
+                    result.innerHTML += 'Table might not exist or has wrong structure.\n';
+                    return;
+                }
+                
+                if (data && data.length > 0) {
+                    result.innerHTML += `✅ Table exists!\n\n`;
+                    result.innerHTML += 'Columns:\n';
+                    Object.keys(data[0]).forEach(col => {
+                        result.innerHTML += `  - ${col}\n`;
+                    });
+                } else {
+                    result.innerHTML += '⚠️ Table exists but is empty\n';
+                }
+            } catch (err) {
+                result.innerHTML += `❌ EXCEPTION: ${err.message}\n`;
+            }
+        }
+
+        async function createTable() {
+            const result = document.getElementById('result');
+            result.innerHTML = '⚠️ Cannot create table from JavaScript.\n\n';
+            result.innerHTML += 'Please go to Supabase Dashboard and run this SQL:\n\n';
+            result.innerHTML += '═'.repeat(80) + '\n\n';
+            result.innerHTML += `
+-- Drop old table if exists (CAREFUL: This deletes all data!)
+DROP TABLE IF EXISTS admin_logs;
+
+-- Create admin_logs table with correct structure
+CREATE TABLE admin_logs (
+    id BIGSERIAL PRIMARY KEY,
+    log_type TEXT NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT,
+    username TEXT,
+    device_type TEXT,
+    browser TEXT,
+    platform TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
+
+-- Create policy to allow all operations (for testing)
+CREATE POLICY "Allow all operations" ON admin_logs
+    FOR ALL USING (true) WITH CHECK (true);
+
+-- Create index on created_at for faster queries
+CREATE INDEX idx_admin_logs_created_at ON admin_logs(created_at DESC);
+`;
+            result.innerHTML += '\n\n═'.repeat(80) + '\n\n';
+            result.innerHTML += 'After running this SQL, click "Test Insert" to verify.\n';
+        }
+
+        async function testInsert() {
+            const result = document.getElementById('result');
+            result.innerHTML = '⏳ Testing insert...\n\n';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('admin_logs')
+                    .insert([{
+                        log_type: 'info',
+                        title: 'Test Log',
+                        message: 'Testing table structure - ' + new Date().toLocaleString(),
+                        username: 'TestUser',
+                        device_type: 'Desktop',
+                        browser: 'Chrome',
+                        platform: 'Windows'
+                    }])
+                    .select();
+                
+                if (error) {
+                    result.innerHTML += `❌ INSERT FAILED: ${error.message}\n\n`;
+                    result.innerHTML += 'Table structure is incorrect. Please run the SQL from step 2.\n';
+                    return;
+                }
+                
+                result.innerHTML += `✅ INSERT SUCCESSFUL!\n\n`;
+                result.innerHTML += 'Data inserted:\n';
+                result.innerHTML += JSON.stringify(data, null, 2);
+                result.innerHTML += '\n\n✅ Table is working correctly now!\n';
+                
+            } catch (err) {
+                result.innerHTML += `❌ EXCEPTION: ${err.message}\n`;
+            }
+        }
+    </script>
+</body>
+</html>

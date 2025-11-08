@@ -561,6 +561,13 @@ function updateCourseStats() {
     console.log('📊 Updating course stats...');
     console.log('Total applications:', applications.length);
     
+    // Debug: Show all statuses
+    const statusCounts = {};
+    applications.forEach(app => {
+        statusCounts[app.status] = (statusCounts[app.status] || 0) + 1;
+    });
+    console.log('Status breakdown:', statusCounts);
+    
     courses.forEach(course => {
         // Match course names with or without price suffix (e.g., "Web Development - ₹199")
         const approved = applications.filter(app => {

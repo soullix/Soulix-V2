@@ -116,13 +116,25 @@ function addAdminLog(type, title, message, saveToSupabaseFlag = true, timestamp 
     updateLogBadge();
     
     // Save to Supabase using new DataManager
-    if (saveToSupabaseFlag && window.DataManager && window.DataManager.saveLog) {
-        console.log(`  💾 Saving log to Supabase...`);
-        window.DataManager.saveLog(type, title, message).catch(err => {
-            console.error('  ❌ Failed to save log to Supabase:', err);
-        });
+    if (saveToSupabaseFlag) {
+        console.log(`  🔍 Checking DataManager availability...`);
+        console.log(`    window.DataManager exists: ${!!window.DataManager}`);
+        console.log(`    window.DataManager.saveLog exists: ${!!(window.DataManager && window.DataManager.saveLog)}`);
+        
+        if (window.DataManager && window.DataManager.saveLog) {
+            console.log(`  💾 Calling DataManager.saveLog('${type}', '${title}', '${message}')`);
+            window.DataManager.saveLog(type, title, message)
+                .then(result => {
+                    console.log(`  ✅ saveLog returned:`, result);
+                })
+                .catch(err => {
+                    console.error('  ❌ Failed to save log to Supabase:', err);
+                });
+        } else {
+            console.error(`  ❌ DataManager or saveLog not available!`);
+        }
     } else {
-        console.log(`  ⏭️ Skipping Supabase save (old log)`);
+        console.log(`  ⏭️ Skipping Supabase save (saveToSupabaseFlag = false)`);
     }
 }
 

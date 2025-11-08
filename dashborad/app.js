@@ -512,7 +512,6 @@ function updateAllStats() {
     
     // Update badges
     document.getElementById('pendingBadge').textContent = pending;
-    document.getElementById('notificationCount').textContent = pending;
     
     // Update tab counts
     document.getElementById('allCount').textContent = total;

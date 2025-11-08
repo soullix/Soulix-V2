@@ -389,6 +389,8 @@
         
         // Initialize Supabase client
         async function initSupabase() {
+            if (supabaseClient) return supabaseClient;
+            
             const SUPABASE_URL = 'https://xmtxeagxnqfczenqwizz.supabase.co';
             const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtdHhlYWd4bnFmY3plbnF3aXp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA5NTM3MTEsImV4cCI6MjA0NjUyOTcxMX0.KnVPtLPa9LX2xMqLJGhSjl5-BfwSA6SY6W_C7y0KnS0';
             

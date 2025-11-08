@@ -396,6 +396,8 @@ async function savePayment(application, paymentDetails) {
             payment_status: paymentDetails.status || 'Paid',
             upi_transaction_id: application.upi_transaction_id,
             payment_date: new Date().toISOString()
+        };
+        
         const { data, error } = await supabaseClient.from('payments').insert([paymentData]);
         
         if (error) {
@@ -407,9 +409,6 @@ async function savePayment(application, paymentDetails) {
     } catch (error) {
         console.error('Payment save failed:', error);
         throw error; // Propagate error to caller
-    }
-}   } catch (error) {
-        console.error('Payment save failed:', error.message);
     }
 }
 

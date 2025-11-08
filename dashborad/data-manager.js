@@ -220,6 +220,39 @@ async function rejectApplication(id, reason) {
 }
 
 // ============================================
+// DELETE APPLICATION
+// ============================================
+async function deleteApplication(id) {
+    try {
+        console.log('🗑️ Deleting application:', id);
+        
+        const { error } = await supabaseClient
+            .from('applications')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        console.log('✅ Application deleted from Supabase');
+        
+        // Remove from local data
+        const index = applicationsData.findIndex(app => app.id === id);
+        if (index !== -1) {
+            applicationsData.splice(index, 1);
+        }
+        
+        // Reload to ensure sync
+        await loadAllData();
+        
+        return { success: true };
+        
+    } catch (error) {
+        console.error('❌ Delete error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
@@ -510,6 +543,7 @@ window.DataManager = {
     // Actions
     approve: approveApplication,
     reject: rejectApplication,
+    delete: deleteApplication,
     reload: loadAllData,
     
     // Logs
@@ -518,7 +552,10 @@ window.DataManager = {
     saveLoginSession: saveLoginSession,
     
     // Status
-    isReady: () => isInitialized
+    isReady: () => isInitialized,
+    
+    // Supabase client (for sheets-sync)
+    getSupabaseClient: () => supabaseClient
 };
 
 console.log('📦 Data Manager loaded');

@@ -809,6 +809,11 @@ function viewApplication(id) {
                     </button>
                 </div>
             ` : ''}
+            <div style="margin-top: 1rem;">
+                <button class="btn-action" style="width: 100%; background: #ef4444; border-color: #dc2626;" onclick="deleteApplication('${app.id}'); document.getElementById('detailModal').classList.remove('show');">
+                    <i class="fas fa-trash"></i> Delete Application
+                </button>
+            </div>
         </div>
     `;
     
@@ -1015,6 +1020,45 @@ function rejectApplicationWithReason(id, reason) {
         renderRecentApplications();
         updateCharts();
     }, 100);
+}
+
+function deleteApplication(id) {
+    const app = applications.find(a => a.id === id);
+    if (!app) return;
+    
+    // Confirmation dialog
+    if (!confirm(`⚠️ DELETE APPLICATION?\n\nStudent: ${app.name}\nEmail: ${app.email}\nCourse: ${app.course}\nStatus: ${app.status}\n\nThis action CANNOT be undone!\n\nClick OK to permanently delete.`)) {
+        return;
+    }
+    
+    console.log('🗑️ Deleting application via DataManager...', app.name);
+    
+    // Use DataManager to delete (handles database operations)
+    if (window.DataManager) {
+        window.DataManager.delete(id).then(result => {
+            if (result.success) {
+                console.log('✅ Application deleted successfully');
+                
+                // Log the deletion
+                addAdminLog('warning', '🗑️ Application Deleted', 
+                    `${app.name} • ${app.course} • Status: ${app.status} • Permanently removed from database`);
+                
+                // Show success message
+                showToast('success', 'Application Deleted', `${app.name}'s application has been permanently deleted.`);
+                
+                // Trigger UI update event
+                window.dispatchEvent(new Event('dataUpdated'));
+            } else {
+                console.error('❌ Deletion failed:', result.error);
+                showToast('error', 'Deletion Failed', result.error);
+            }
+        }).catch(err => {
+            console.error('❌ DataManager.delete error:', err);
+            showToast('error', 'Database Error', 'Failed to delete application');
+        });
+    } else {
+        console.error('❌ DataManager not available!');
+    }
 }
 
 // Notifications (Simulated Email/SMS)

@@ -88,11 +88,12 @@ async function addNewEntriesToSupabase(sheetEntries) {
         const newEntries = sheetEntries.filter(entry => !existingIds.has(entry.id));
         const existingEntries = sheetEntries.filter(entry => existingIds.has(entry.id));
         
-        // Get Supabase client
-        const supabase = window.supabase.createClient(
-            'https://xmtxeagxnqfczenqwizz.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhtdHhlYWd4bnFmY3plbnF3aXp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0Mzg3MTgsImV4cCI6MjA3ODAxNDcxOH0.NUTpXhNfoXkcCrWhGE2-j4V6p9VydN6EkLPUCBVqeh8'
-        );
+        // Get Supabase client from DataManager (reuse existing instance)
+        const supabase = window.DataManager.getSupabaseClient();
+        if (!supabase) {
+            console.error('❌ Could not get Supabase client from DataManager');
+            return;
+        }
         
         // UPDATE existing entries with correct data from sheets (fix "no" course issue)
         if (existingEntries.length > 0) {

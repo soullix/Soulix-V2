@@ -361,9 +361,21 @@ async function savePayment(application, paymentDetails) {
             browser: deviceInfo.browser
         };
         
-        await supabaseClient.from('payments').insert([paymentData]);
+        console.log('💰 Saving to payments table:', paymentData);
+        const { data, error } = await supabaseClient.from('payments').insert([paymentData]);
+        
+        if (error) {
+            console.error('❌❌❌ ERROR SAVING PAYMENT ❌❌❌');
+            console.error('Error details:', error);
+            console.error('Error message:', error.message);
+            console.error('Error code:', error.code);
+            console.error('Data tried to insert:', paymentData);
+            throw error;
+        }
+        
+        console.log('✅✅✅ PAYMENT SAVED SUCCESSFULLY:', data);
     } catch (error) {
-        console.error('Error saving payment:', error);
+        console.error('❌❌❌ CAUGHT ERROR IN PAYMENT SAVE:', error.message, error);
     }
 }
 

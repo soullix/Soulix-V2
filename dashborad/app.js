@@ -571,11 +571,15 @@ function updateCourseStats() {
     courses.forEach(course => {
         // Match course names with or without price suffix (e.g., "Web Development - ₹199")
         const approved = applications.filter(app => {
-            const courseName = app.course ? app.course.split(' - ')[0] : '';
-            return courseName === course && app.status === 'Approved';
+            const courseName = app.course ? app.course.split(' - ')[0].trim() : '';
+            const match = courseName === course && app.status === 'Approved';
+            if (app.status === 'Approved') {
+                console.log(`    Checking "${app.course}" -> "${courseName}" === "${course}" ? ${courseName === course}`);
+            }
+            return match;
         }).length;
         const pending = applications.filter(app => {
-            const courseName = app.course ? app.course.split(' - ')[0] : '';
+            const courseName = app.course ? app.course.split(' - ')[0].trim() : '';
             return courseName === course && app.status === 'Pending';
         }).length;
         

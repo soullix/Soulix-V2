@@ -60,7 +60,7 @@ function initAdminLog() {
     // Don't add "Session Started" here - it will be added after loading old logs
 }
 
-function addAdminLog(type, title, message, saveToSupabaseFlag = true) {
+function addAdminLog(type, title, message, saveToSupabaseFlag = true, timestamp = null) {
     const logBody = document.getElementById('adminLogBody');
     if (!logBody) return;
     
@@ -73,8 +73,9 @@ function addAdminLog(type, title, message, saveToSupabaseFlag = true) {
     const logItem = document.createElement('div');
     logItem.className = `admin-log-item ${type}`;
     
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    // Use provided timestamp or current time
+    const logTime = timestamp ? new Date(timestamp) : new Date();
+    const timeStr = logTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     
     // Icon based on type
     let icon = '';

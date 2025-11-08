@@ -54,9 +54,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     const logs = await window.DataManager.getLogs(50);
     if (logs && logs.length > 0) {
         console.log(`✅ Found ${logs.length} previous logs`);
-        // Add old logs FIRST (they'll appear at bottom since we're using insertBefore)
-        logs.forEach(log => {
-            addAdminLog(log.log_type, log.title, log.message, false);
+        // Logs come from DB newest first, reverse to show oldest first
+        // Then each log is inserted at top, so newest ends up at top
+        logs.reverse().forEach(log => {
+            addAdminLog(log.log_type, log.title, log.message, false, log.created_at);
         });
     } else {
         console.log('ℹ️ No previous logs found');

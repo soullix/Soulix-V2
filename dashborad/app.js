@@ -569,18 +569,23 @@ function updateCourseStats() {
     console.log('Status breakdown:', statusCounts);
     
     courses.forEach(course => {
-        // Match course names with or without price suffix (e.g., "Web Development - ₹199")
+        // Match course names with or without price suffix
+        // Use startsWith() to handle any separator
         const approved = applications.filter(app => {
-            const courseName = app.course ? app.course.split(' - ')[0].trim() : '';
-            const match = courseName === course && app.status === 'Approved';
+            if (!app.course) return false;
+            const courseName = app.course.trim();
+            const match = (courseName === course || courseName.startsWith(course + ' ') || courseName.startsWith(course + '-')) 
+                          && app.status === 'Approved';
             if (app.status === 'Approved') {
-                console.log(`    Checking "${app.course}" -> "${courseName}" === "${course}" ? ${courseName === course}`);
+                console.log(`    Checking "${courseName}" starts with "${course}" ? ${match}`);
             }
             return match;
         }).length;
         const pending = applications.filter(app => {
-            const courseName = app.course ? app.course.split(' - ')[0].trim() : '';
-            return courseName === course && app.status === 'Pending';
+            if (!app.course) return false;
+            const courseName = app.course.trim();
+            return (courseName === course || courseName.startsWith(course + ' ') || courseName.startsWith(course + '-')) 
+                   && app.status === 'Pending';
         }).length;
         
         console.log(`  ${course}: ${approved} approved, ${pending} pending`);

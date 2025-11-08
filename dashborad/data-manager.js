@@ -288,9 +288,21 @@ async function saveToApprovedTable(application) {
             approved_by_browser: deviceInfo.browser
         };
         
-        await supabaseClient.from('approved_applications').insert([approvedData]);
+        console.log('💾 Saving to approved_applications table:', approvedData);
+        const { data, error } = await supabaseClient.from('approved_applications').insert([approvedData]);
+        
+        if (error) {
+            console.error('❌❌❌ ERROR SAVING TO APPROVED TABLE ❌❌❌');
+            console.error('Error details:', error);
+            console.error('Error message:', error.message);
+            console.error('Error code:', error.code);
+            console.error('Data tried to insert:', approvedData);
+            throw error;
+        }
+        
+        console.log('✅✅✅ SUCCESSFULLY SAVED TO APPROVED TABLE:', data);
     } catch (error) {
-        console.error('Error saving to approved table:', error);
+        console.error('❌❌❌ CAUGHT ERROR IN APPROVED TABLE:', error.message, error);
     }
 }
 
@@ -312,9 +324,21 @@ async function saveToRejectedTable(application) {
             rejected_by_browser: deviceInfo.browser
         };
         
-        await supabaseClient.from('rejected_applications').insert([rejectedData]);
+        console.log('💾 Saving to rejected_applications table:', rejectedData);
+        const { data, error } = await supabaseClient.from('rejected_applications').insert([rejectedData]);
+        
+        if (error) {
+            console.error('❌❌❌ ERROR SAVING TO REJECTED TABLE ❌❌❌');
+            console.error('Error details:', error);
+            console.error('Error message:', error.message);
+            console.error('Error code:', error.code);
+            console.error('Data tried to insert:', rejectedData);
+            throw error;
+        }
+        
+        console.log('✅✅✅ SUCCESSFULLY SAVED TO REJECTED TABLE:', data);
     } catch (error) {
-        console.error('Error saving to rejected table:', error);
+        console.error('❌❌❌ CAUGHT ERROR IN REJECTED TABLE:', error.message, error);
     }
 }
 

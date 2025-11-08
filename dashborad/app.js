@@ -8,93 +8,55 @@ let notifications = 0;
 
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', async function() {
-    // First, load from localStorage (includes Google Sheets data)
-    loadData();
+    console.log('🚀 Initializing Dashboard...');
     
-    // Initialize Supabase
+    // Initialize Supabase FIRST
     const supabaseReady = initSupabase();
     
-    if (supabaseReady) {
-        // Check connection
-        const connectionStatus = await checkSupabaseConnection();
-        
-        if (connectionStatus.connected) {
-            console.log('✅ Supabase connected successfully');
-            
-            // Auto-migrate localStorage data to Supabase (first time only)
-            if (typeof autoMigrateToSupabase === 'function') {
-                const migrationResult = await autoMigrateToSupabase();
-                if (migrationResult.success > 0) {
-                    console.log(`✅ Auto-migration: ${migrationResult.success} applications migrated`);
-                }
-            }
-            
-            // ============================================
-            // NEW STRATEGY: Load EVERYTHING from Supabase
-            // Supabase is now the single source of truth
-            // Google Sheets only adds NEW entries via sheets-integration.js
-            // ============================================
-            
-            console.log('📥 Loading all data from Supabase...');
-            
-            const { data: allData, error: loadError } = await supabase
-                .from('applications')
-                .select('*')
-                .order('applied_date', { ascending: false });
-            
-            if (loadError) {
-                console.error('❌ Error loading from Supabase:', loadError);
-            } else {
-                console.log(`☁️ Loaded ${allData?.length || 0} applications from Supabase`);
-                
-                // Convert Supabase format to local format
-                applications = (allData || []).map(app => ({
-                    id: app.id,
-                    name: app.name,
-                    email: app.email,
-                    phone: app.phone,
-                    course: app.course,
-                    status: app.status,
-                    appliedDate: app.applied_date,
-                    approvedDate: app.approved_date,
-                    rejectedDate: app.rejected_date,
-                    paymentType: app.payment_type,
-                    paymentAmount: app.payment_amount,
-                    paymentStatus: app.payment_status,
-                    upiTransactionId: app.upi_transaction_id,
-                    installmentsPaid: app.installments_paid,
-                    totalInstallments: app.total_installments,
-                    rejectionReason: app.rejection_reason,
-                    approvedBy: app.approved_by ? JSON.parse(app.approved_by) : null,
-                    rejectedBy: app.rejected_by ? JSON.parse(app.rejected_by) : null
-                }));
-                
-                // Update localStorage
-                localStorage.setItem('soulixApplications', JSON.stringify(applications));
-                
-                const pending = applications.filter(app => app.status === 'Pending').length;
-                const approved = applications.filter(app => app.status === 'Approved').length;
-                const rejected = applications.filter(app => app.status === 'Rejected').length;
-                
-                console.log(`✅ Loaded: ${applications.length} total (${pending} pending, ${approved} approved, ${rejected} rejected)`);
-            }
-            
-            // Save login session to Supabase
-            await saveLoginSessionToSupabase();
-            
-            // Load and display logs from Supabase
-            const logs = await loadLogsFromSupabase(50);
-            if (logs && logs.length > 0) {
-                logs.reverse().forEach(log => {
-                    addAdminLog(log.log_type, log.title, log.message, false);
-                });
-            }
-        } else {
-            console.warn('⚠️ Supabase not connected:', connectionStatus.error);
-            console.log('📦 Using localStorage only');
+    if (!supabaseReady) {
+        console.error('❌ Supabase failed to initialize');
+        showToast('error', 'Database Error', 'Cannot connect to database. Please refresh the page.');
+        applications = getSampleApplications(); // Fallback
+        return;
+    }
+    
+    // Check connection
+    const connectionStatus = await checkSupabaseConnection();
+    
+    if (!connectionStatus.connected) {
+        console.error('❌ Supabase not connected:', connectionStatus.error);
+        showToast('error', 'Database Connection Failed', 'Cannot load data. Please check your internet connection.');
+        applications = getSampleApplications(); // Fallback
+        return;
+    }
+    
+    console.log('✅ Supabase connected successfully');
+    
+    // ============================================
+    // LOAD ALL DATA FROM SUPABASE ONLY
+    // No localStorage, No merging, Pure Supabase
+    // ============================================
+    
+    await loadDataFromSupabase();
+    
+    // Auto-migrate old localStorage data (one-time)
+    if (typeof autoMigrateToSupabase === 'function') {
+        const migrationResult = await autoMigrateToSupabase();
+        if (migrationResult.success > 0) {
+            console.log(`✅ Migrated ${migrationResult.success} old applications`);
+            await loadDataFromSupabase(); // Reload after migration
         }
-    } else {
-        console.warn('⚠️ Supabase not initialized - using localStorage only');
+    }
+    
+    // Save login session to Supabase
+    await saveLoginSessionToSupabase();
+    
+    // Load and display logs from Supabase
+    const logs = await loadLogsFromSupabase(50);
+    if (logs && logs.length > 0) {
+        logs.reverse().forEach(log => {
+            addAdminLog(log.log_type, log.title, log.message, false);
+        });
     }
     
     // Log login session details (local)
@@ -130,16 +92,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         }, 100);
     }, 30000);
     
-    // Sync data across tabs/devices
-    window.addEventListener('storage', function(e) {
-        if (e.key === 'applications') {
-            loadData();
-            updateAllStats();
-            renderApplications();
-            renderRecentApplications();
-            updateCharts();
-            addAdminLog('info', 'Data Synced', 'Updated from another tab/device', false);
-        }
+    // Sync data across tabs/devices via Supabase real-time
+    // (Real-time subscription handled in supabase-config.js)
+    window.addEventListener('dataUpdated', function(e) {
+        console.log('📡 Data updated event:', e.detail);
+        updateAllStats();
+        renderApplications();
+        renderRecentApplications();
+        updateCharts();
     });
 });
 
@@ -392,33 +352,81 @@ function initMobileMenu() {
 }
 
 // Load Data
-function loadData() {
-    const stored = localStorage.getItem('soulixApplications');
-    applications = stored ? JSON.parse(stored) : getSampleApplications();
-    saveData();
+// ============================================
+// LOAD DATA FROM SUPABASE (NO LOCALSTORAGE)
+// ============================================
+async function loadDataFromSupabase() {
+    if (typeof supabase === 'undefined' || !supabase) {
+        console.error('❌ Supabase not available');
+        applications = getSampleApplications();
+        return;
+    }
+    
+    try {
+        const { data, error } = await supabase
+            .from('applications')
+            .select('*')
+            .order('applied_date', { ascending: false });
+        
+        if (error) throw error;
+        
+        // Convert Supabase format to local format
+        applications = (data || []).map(app => ({
+            id: app.id,
+            name: app.name,
+            email: app.email,
+            phone: app.phone,
+            course: app.course,
+            status: app.status,
+            appliedDate: app.applied_date,
+            approvedDate: app.approved_date,
+            rejectedDate: app.rejected_date,
+            paymentType: app.payment_type,
+            paymentAmount: app.payment_amount,
+            paymentStatus: app.payment_status,
+            upiTransactionId: app.upi_transaction_id,
+            installmentsPaid: app.installments_paid,
+            totalInstallments: app.total_installments,
+            rejectionReason: app.rejection_reason,
+            approvedBy: app.approved_by ? JSON.parse(app.approved_by) : null,
+            rejectedBy: app.rejected_by ? JSON.parse(app.rejected_by) : null
+        }));
+        
+        console.log(`✅ Loaded ${applications.length} applications from Supabase`);
+        
+        // Dispatch event for UI updates
+        window.dispatchEvent(new CustomEvent('dataUpdated', { 
+            detail: { timestamp: Date.now(), source: 'supabase' } 
+        }));
+        
+    } catch (error) {
+        console.error('❌ Error loading from Supabase:', error);
+        applications = getSampleApplications();
+    }
 }
 
+// Legacy loadData function - now just calls loadDataFromSupabase
+function loadData() {
+    console.warn('⚠️ loadData() is deprecated - using Supabase');
+    // If Supabase available, load from there
+    if (typeof loadDataFromSupabase === 'function') {
+        loadDataFromSupabase();
+    }
+}
+
+// ============================================
+// SAVE DATA TO SUPABASE (NO LOCALSTORAGE)
+// ============================================
 function saveData() {
-    // Save to localStorage (fallback)
-    localStorage.setItem('soulixApplications', JSON.stringify(applications));
-    
-    // Also set a timestamp to track data changes
-    localStorage.setItem('lastDataUpdate', Date.now().toString());
+    console.log('💾 Saving data to Supabase...');
     
     // Dispatch custom event for same-tab updates
     window.dispatchEvent(new CustomEvent('dataUpdated', { 
-        detail: { timestamp: Date.now() } 
+        detail: { timestamp: Date.now(), source: 'save' } 
     }));
     
-    // Save to Supabase if available
-    if (typeof saveToSupabase === 'function') {
-        // Save all applications to Supabase
-        applications.forEach(app => {
-            saveToSupabase(app).catch(err => {
-                console.error('Failed to save to Supabase:', err);
-            });
-        });
-    }
+    // Note: Individual save functions (saveToSupabase, saveApprovedApplication, etc.)
+    // are called directly when approving/rejecting, so we don't need to loop here
 }
 
 // Navigation

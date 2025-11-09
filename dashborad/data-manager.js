@@ -121,17 +121,25 @@ async function approveApplication(id, paymentDetails) {
             })
         };
         
+        console.log('Approve - Updating application with:', updateData);
         const { data, error } = await supabaseClient
             .from('applications')
             .update(updateData)
             .eq('id', id)
             .select();
         
-        if (error) throw error;
+        if (error) {
+            console.error('Approve - Supabase update error:', error);
+            throw error;
+        }
         
         // Get the first result (should only be one)
+        console.log('Approve - Update response:', data);
         const updatedApp = data && data.length > 0 ? data[0] : null;
-        if (!updatedApp) throw new Error('Failed to update application');
+        if (!updatedApp) {
+            console.error('Approve - No data returned. Response:', data);
+            throw new Error('Failed to update application - no data returned');
+        }
         
         // Update local data
         const index = applicationsData.findIndex(app => app.id === id);

@@ -121,7 +121,22 @@ async function approveApplication(id, paymentDetails) {
             })
         };
         
-        console.log('Approve - Updating application with:', updateData);
+        console.log('Approve - Updating application ID:', id, 'with:', updateData);
+        
+        // First, verify the application exists
+        const { data: existingApp, error: checkError } = await supabaseClient
+            .from('applications')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (checkError) {
+            console.error('Approve - Application not found:', checkError);
+            throw new Error(`Application with ID ${id} not found`);
+        }
+        
+        console.log('Approve - Existing application:', existingApp);
+        
         const { data, error } = await supabaseClient
             .from('applications')
             .update(updateData)

@@ -1,14 +1,22 @@
 // Set launch date
+// Launch tomorrow at 12:00 PM (noon)
+const launchDate = new Date();
+launchDate.setDate(launchDate.getDate() + 1); // Tomorrow
+launchDate.setHours(12, 0, 0, 0); // 12:00 PM
+
 // Option 1: Specific date and time (UNCOMMENT AND EDIT THIS)
 // const launchDate = new Date('2025-12-01T00:00:00');
 
 // Option 2: Hours from now (currently 36 hours)
-const launchDate = new Date();
-launchDate.setHours(launchDate.getHours() + 36);
+// const launchDate = new Date();
+// launchDate.setHours(launchDate.getHours() + 36);
 
 // Option 3: Days from now
 // const launchDate = new Date();
 // launchDate.setDate(launchDate.getDate() + 7); // 7 days from now
+
+// Countdown interval variable
+let countdownInterval;
 
 // Update countdown
 function updateCountdown() {
@@ -33,7 +41,9 @@ function updateCountdown() {
   // Check if countdown is finished
   if (distance < 0) {
     clearInterval(countdownInterval);
-    document.querySelector('.countdown').innerHTML = '<h1 style="color: inherit; font-size: 3rem;">🎉 We\'re Live! 🎉</h1>';
+    
+    // Immediately redirect to main site (no delay)
+    window.location.href = '/main-site/index.html';
   }
 }
 
@@ -58,96 +68,6 @@ function updateFlipCounter(id, newValue) {
       element.textContent = newValue;
     }
   }
-}
-
-// Video Introduction Handling
-function setupVideoIntro() {
-  const videoOverlay = document.getElementById('videoOverlay');
-  const introVideo = document.getElementById('introVideo');
-  const skipBtn = document.getElementById('skipBtn');
-  const enterBtn = document.getElementById('enterBtn');
-  const videoFallback = document.querySelector('.video-fallback');
-  
-  const videoSources = [
-    'Something Big is Coming Soon..mp4'
-  ];
-  
-  // Function to play video
-  function playVideo() {
-    // Ensure video is muted for autoplay
-    introVideo.muted = true;
-    introVideo.setAttribute('playsinline', '');
-    introVideo.setAttribute('webkit-playsinline', '');
-    
-    introVideo.src = videoSources[0];
-    introVideo.load();
-    
-    // Wait for video to be ready
-    introVideo.addEventListener('loadeddata', function onLoaded() {
-      introVideo.removeEventListener('loadeddata', onLoaded);
-      
-      const playPromise = introVideo.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          console.log('Video playing successfully');
-          videoFallback.style.display = 'none';
-        }).catch(error => {
-          console.log('Autoplay blocked, showing fallback');
-          showFallback();
-        });
-      }
-    }, { once: true });
-    
-    // Fallback if video doesn't load in 3 seconds
-    setTimeout(() => {
-      if (introVideo.paused && introVideo.readyState < 3) {
-        console.log('Video taking too long to load, showing fallback');
-        showFallback();
-      }
-    }, 3000);
-  }
-  
-  // Show fallback animation
-  function showFallback() {
-    videoFallback.style.display = 'block';
-    videoFallback.classList.add('show');
-  }
-  
-  // Hide video overlay
-  function hideVideoOverlay() {
-    videoOverlay.classList.add('hidden');
-    setTimeout(() => {
-      if (videoOverlay && videoOverlay.parentNode) {
-        videoOverlay.style.display = 'none';
-      }
-    }, 1000);
-  }
-  
-  // Handle video end
-  introVideo.addEventListener('ended', () => {
-    hideVideoOverlay();
-  });
-  
-  // Handle video load error
-  introVideo.addEventListener('error', () => {
-    console.log('Video failed to load');
-    showFallback();
-  });
-  
-  // Skip button handler
-  skipBtn.addEventListener('click', () => {
-    hideVideoOverlay();
-  });
-  
-  // Enter button handler (for fallback)
-  if (enterBtn) {
-    enterBtn.addEventListener('click', () => {
-      hideVideoOverlay();
-    });
-  }
-  
-  // Start playing video
-  playVideo();
 }
 
 // Email validation
@@ -211,12 +131,9 @@ function setupForm() {
 
 // Initialize everything
 function init() {
-  // Setup video intro
-  setupVideoIntro();
-  
   // Setup countdown
   updateCountdown();
-  const countdownInterval = setInterval(updateCountdown, 1000);
+  countdownInterval = setInterval(updateCountdown, 1000);
   
   // Setup form
   setupForm();

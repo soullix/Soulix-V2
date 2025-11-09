@@ -177,11 +177,11 @@ support@soulix.tech
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: "SOULIX <support@soulix.tech>",
+      from: "SOULIX Team <support@soulix.tech>",
       to: email,
       subject: action === "approve"
         ? `🎉 Seat Confirmed — Welcome to ${cleanCourseName}`
-        : `Application Update for ${cleanCourseName}`,
+        : `⚠️ Payment Verification Failed — Action Required`,
       html
     });
 

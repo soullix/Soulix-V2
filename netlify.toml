@@ -39,10 +39,28 @@
   [headers.values]
     Cache-Control = "public, max-age=300"
 
-# Redirect rules - Single page app
+# Test URL - Access main course selection site at /dashboard
+[[redirects]]
+  from = "/dashboard"
+  to = "/main-site/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard/*"
+  to = "/main-site/:splat"
+  status = 200
+
+# Show minimal dark theme as default homepage
+[[redirects]]
+  from = "/"
+  to = "/minimal-dark/index.html"
+  status = 200
+  force = false
+
+# All other paths go to minimal dark theme (placeholder)
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/minimal-dark/index.html"
   status = 200
 
 # Function configuration - Optimized

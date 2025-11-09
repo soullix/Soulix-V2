@@ -1100,63 +1100,68 @@ function deleteApplication(id) {
 
 // Notifications (Simulated Email/SMS)
 async function sendApprovalNotification(app) {
-    addAdminLog('info', 'Sending Approval Email', `Sending to ${app.email}...`);
+    addAdminLog('info', '📧 Sending Approval Email', `Sending to ${app.email}...`);
     
-    // Send real email via Brevo API
-    if (typeof window.sendApprovalEmail === 'function') {
-        try {
-            const result = await window.sendApprovalEmail(
-                app.email,
-                app.name,
-                app.upiTransactionId || app.id,
-                app.course || '',
-                'approve'
-            );
-            
-            if (result.success) {
-                console.log('✅ Approval email sent to:', app.email);
-                addAdminLog('success', 'Email Sent Successfully', `✅ Approval email sent to ${app.name} (${app.email})`);
-            } else {
-                console.warn('⚠️ Email sending failed:', result.error);
-                addAdminLog('error', 'Email Failed', `❌ Failed to send to ${app.email}: ${result.error}`);
-            }
-        } catch (error) {
-            console.error('❌ Error sending email:', error);
-            addAdminLog('error', 'Email Error', `❌ Error sending to ${app.email}: ${error.message}`);
+    try {
+        // Call Netlify serverless function
+        const response = await fetch('/.netlify/functions/sendDecision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'approve',
+                email: app.email,
+                name: app.name,
+                course: app.course,
+                amount: app.paymentAmount || app.amount || '0',
+                paymentRef: app.paymentReference || 'N/A',
+                upiTransactionId: app.upiTransactionId
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            console.log('✅ Approval email sent successfully to:', app.email);
+            addAdminLog('success', '✅ Email Sent', `Approval email sent to ${app.name} (${app.email})`);
+        } else {
+            console.error('❌ Email sending failed:', result.error);
+            addAdminLog('error', '❌ Email Failed', `Failed to send to ${app.email}: ${result.error}`);
         }
-    } else {
-        console.warn('⚠️ Email function not available. Make sure sheets-integration.js is loaded.');
-        addAdminLog('warning', 'Email Function Unavailable', 'sheets-integration.js not loaded');
+    } catch (error) {
+        console.error('❌ Error calling Netlify function:', error);
+        addAdminLog('error', '❌ Email Error', `Network error sending to ${app.email}: ${error.message}`);
     }
 }
 
-function sendRejectionNotification(app) {
-    addAdminLog('info', 'Sending Rejection Email', `Sending to ${app.email}...`);
+async function sendRejectionNotification(app) {
+    addAdminLog('info', '📧 Sending Rejection Email', `Sending to ${app.email}...`);
     
-    // Send rejection email using Netlify function (uses reject template)
-    if (typeof window.sendApprovalEmail === 'function') {
-        window.sendApprovalEmail(
-            app.email,
-            app.name,
-            app.upiTransactionId || app.id,
-            app.course || '',
-            'reject',
-            app.rejectionReason || ''
-        ).then(result => {
-            if (result && result.success) {
-                console.log('✅ Rejection email sent to:', app.email);
-                addAdminLog('success', 'Rejection Email Sent', `✅ Email sent to ${app.name} (${app.email})`);
-            } else {
-                console.warn('⚠️ Rejection email failed:', result && result.error);
-                addAdminLog('error', 'Email Failed', `❌ Failed to send rejection email: ${result && result.error}`);
-            }
-        }).catch(err => {
-            console.error('❌ Error sending rejection email:', err);
-            addAdminLog('error', 'Email Error', `❌ Error: ${err.message}`);
+    try {
+        // Call Netlify serverless function
+        const response = await fetch('/.netlify/functions/sendDecision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'reject',
+                email: app.email,
+                name: app.name,
+                course: app.course,
+                notes: app.rejectionReason || 'Application did not meet requirements'
+            })
         });
-    } else {
-        console.warn('⚠️ Email function not available. Make sure sheets-integration.js is loaded.');
-        addAdminLog('warning', 'Email Function Unavailable', 'sheets-integration.js not loaded');
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            console.log('✅ Rejection email sent successfully to:', app.email);
+            addAdminLog('success', '✅ Email Sent', `Rejection email sent to ${app.name} (${app.email})`);
+        } else {
+            console.error('❌ Email sending failed:', result.error);
+            addAdminLog('error', '❌ Email Failed', `Failed to send to ${app.email}: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('❌ Error calling Netlify function:', error);
+        addAdminLog('error', '❌ Email Error', `Network error sending to ${app.email}: ${error.message}`);
     }
 }
 

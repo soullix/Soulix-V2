@@ -1,0 +1,16 @@
+{
+  "name": "soulix-course-selection",
+  "version": "1.0.0",
+  "description": "Course selection and admin dashboard with email notifications",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build needed for static site'"
+  },
+  "dependencies": {
+    "resend": "^3.2.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

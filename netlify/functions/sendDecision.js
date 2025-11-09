@@ -23,153 +23,159 @@ export async function handler(event) {
       };
     }
 
-    // Generate email HTML based on action
+    // Generate email HTML based on action using your custom templates
+    const transactionIdText = upiTransactionId ? `💳 <b>Transaction ID:</b> ${upiTransactionId}` : '';
+    
     const html = action === "approve"
-      ? `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background: #f3f4f6; }
-          .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center; }
-          .header img { width: 120px; margin-bottom: 20px; }
-          .header h1 { color: white; font-size: 28px; font-weight: 700; margin: 0; }
-          .content { padding: 40px 30px; }
-          .success-badge { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.1) 100%); border: 2px solid #10b981; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; }
-          .success-badge .icon { font-size: 48px; margin-bottom: 10px; }
-          .info-card { background: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #10b981; }
-          .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
-          .info-row:last-child { border-bottom: none; }
-          .info-label { color: #6b7280; font-weight: 500; }
-          .info-value { color: #0f172a; font-weight: 700; }
-          .footer { background: #f9fafb; padding: 30px; text-align: center; color: #6b7280; font-size: 14px; }
-          .cta-button { display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; margin: 20px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="https://soulix.tech/logo.png" alt="SOULIX Logo" />
-            <h1>🎉 Application Approved!</h1>
-          </div>
-          <div class="content">
-            <h2 style="color: #0f172a; font-size: 24px; margin-top: 0;">Hello ${name},</h2>
-            <p style="color: #64748b; font-size: 16px; line-height: 1.6;">
-              Congratulations! Your application for <strong style="color: #10b981;">${course}</strong> has been <strong>approved</strong>. We're excited to welcome you! 🎓
-            </p>
-            
-            <div class="success-badge">
-              <div class="icon">✅</div>
-              <div style="color: #10b981; font-size: 20px; font-weight: 700;">Payment Confirmed</div>
-            </div>
+      ? `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seat Confirmed — SOULIX</title>
+<style>
+  body { background-color: #000; font-family: Arial, sans-serif; margin: 0; padding: 0; color: #fff; }
+  .container { max-width: 600px; margin: auto; background: #111; border-radius: 12px; overflow: hidden; color: #fff; }
+  .logo-section { background: #000; text-align: center; padding: 35px 20px 25px; }
+  .logo-section img { width: 130px; }
+  .content { padding: 30px; }
+  .title { font-size: 23px; font-weight: bold; color: #22c55e; text-align: center; }
+  .success { background: #052e14; padding: 14px 16px; border-radius: 8px; font-size: 15px; margin-top: 15px; border-left: 4px solid #22c55e; color:#b5ffcf; }
+  .details-box { background: #0b1b3a; padding: 14px 16px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-top: 18px; font-size: 15px; }
+  ul {color:#ddd;}
+  .btn { display: block; width: 100%; text-align: center; padding: 12px; font-size: 15px; font-weight: bold; border-radius: 6px; margin-top: 12px; text-decoration: none; }
+  .whatsapp { background: #25d366; color: #fff !important; }
+  footer { text-align: center; margin: 25px 0; font-size: 12px; color: #777; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-section">
+      <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo" />
+    </div>
 
-            <div class="info-card">
-              <h3 style="color: #0f172a; margin-top: 0; margin-bottom: 15px;">Payment Details</h3>
-              <div class="info-row">
-                <span class="info-label">Course:</span>
-                <span class="info-value">${course}</span>
-              </div>
-              <div class="info-row">
-                <span class="info-label">Amount Paid:</span>
-                <span class="info-value">₹${amount}</span>
-              </div>
-              ${paymentRef ? `
-              <div class="info-row">
-                <span class="info-label">Payment Reference:</span>
-                <span class="info-value">${paymentRef}</span>
-              </div>
-              ` : ''}
-              ${upiTransactionId ? `
-              <div class="info-row">
-                <span class="info-label">UPI Transaction ID:</span>
-                <span class="info-value">${upiTransactionId}</span>
-              </div>
-              ` : ''}
-            </div>
+    <div class="content">
+      <p class="title">🎉 Seat Confirmed — Welcome to IGNITE Program!</p>
 
-            <p style="color: #64748b; font-size: 15px; line-height: 1.6;">
-              You will receive further instructions about your course via email shortly. If you have any questions, feel free to reach out to us.
-            </p>
+      <p>Hi <b>${name}</b>,</p>
 
-            <div style="text-align: center;">
-              <a href="https://soulix.tech" class="cta-button">Visit Dashboard</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p style="margin: 0 0 10px 0;">© 2025 SOULIX. All rights reserved.</p>
-            <p style="margin: 0; font-size: 13px;">
-              If you have any questions, contact us at 
-              <a href="mailto:support@soulix.tech" style="color: #10b981; text-decoration: none;">support@soulix.tech</a>
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>`
-      : `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style>
-          body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background: #f3f4f6; }
-          .container { max-width: 600px; margin: 40px auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 40px 30px; text-align: center; }
-          .header img { width: 120px; margin-bottom: 20px; }
-          .header h1 { color: white; font-size: 28px; font-weight: 700; margin: 0; }
-          .content { padding: 40px 30px; }
-          .warning-badge { background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%); border: 2px solid #ef4444; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; }
-          .warning-badge .icon { font-size: 48px; margin-bottom: 10px; }
-          .info-card { background: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0; border-left: 4px solid #ef4444; }
-          .footer { background: #f9fafb; padding: 30px; text-align: center; color: #6b7280; font-size: 14px; }
-          .cta-button { display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; margin: 20px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="https://soulix.tech/logo.png" alt="SOULIX Logo" />
-            <h1>Application Update</h1>
-          </div>
-          <div class="content">
-            <h2 style="color: #0f172a; font-size: 24px; margin-top: 0;">Hello ${name},</h2>
-            <p style="color: #64748b; font-size: 16px; line-height: 1.6;">
-              Thank you for your interest in <strong>${course}</strong>. After careful review, we regret to inform you that we cannot proceed with your application at this time.
-            </p>
-            
-            <div class="warning-badge">
-              <div class="icon">⚠️</div>
-              <div style="color: #ef4444; font-size: 20px; font-weight: 700;">Application Not Approved</div>
-            </div>
+      <div class="success">
+        ✅ Your payment has been successfully verified.<br>
+        🚀 Your seat for the ${course} is officially confirmed.
+      </div>
 
-            ${notes ? `
-            <div class="info-card">
-              <h3 style="color: #0f172a; margin-top: 0; margin-bottom: 15px;">Additional Information</h3>
-              <p style="color: #64748b; margin: 0; line-height: 1.6;">${notes}</p>
-            </div>
-            ` : ''}
+      <div class="details-box">
+        <b>Program Details:</b><br><br>
+        📚 <b>${course}</b><br>
+        🔥 Live project-based learning<br>
+        🧠 Includes: Front‑end + Back‑end + Database + Deployment + Portfolio building<br>
+        ${transactionIdText}<br><br>
+        ✅ Next steps will be sent shortly (WhatsApp + Email)
+      </div>
 
-            <p style="color: #64748b; font-size: 15px; line-height: 1.6;">
-              If you have any questions or would like to discuss this decision, please don't hesitate to contact us. We appreciate your understanding.
-            </p>
+      
+          <h3 style="margin-top:25px;font-size:18px;font-weight:bold;color:#0d6efd;">🚀 Program Highlights</h3>
+      <ul style="font-size:15px;line-height:1.6;margin-top:10px;padding-left:18px;">
+        <li>Live mentor-led sessions — learn by doing, not watching</li>
+        <li>Work on real projects & build portfolio</li>
+        <li>Hands‑on training: Frontend + Backend + Database + Hosting</li>
+        <li>1‑to‑1 doubt clearing and personal guidance</li>
+        <li>Access to premium resources & project templates</li>
+        <li>Certificate + Internship opportunity for top performers</li>
+      </ul>
 
-            <div style="text-align: center;">
-              <a href="https://soulix.tech/contact" class="cta-button">Contact Support</a>
-            </div>
-          </div>
-          <div class="footer">
-            <p style="margin: 0 0 10px 0;">© 2025 SOULIX. All rights reserved.</p>
-            <p style="margin: 0; font-size: 13px;">
-              Questions? Email us at 
-              <a href="mailto:support@soulix.tech" style="color: #6366f1; text-decoration: none;">support@soulix.tech</a>
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>`;
+      <p style="line-height:1.6;font-size:15px;color:#ddd;">
+You'll receive all important updates on <b>WhatsApp</b> — including session reminders, shared resources, and announcements.
+<br><br>
+Your <b>joining instructions</b> and course materials will be shared soon via <b>Email</b> and <b>WhatsApp</b>.
+<br><br>
+If you need any help at any point, just reply — we're always here to support you.
+</p>
+
+      <p>If you have questions or want to stay updated, join our official WhatsApp community group:</p>
+
+<a href="https://chat.whatsapp.com/D76OYRDVQYqD4RVmrBYuDS" class="btn whatsapp" style="background:#25d366;color:#fff !important;">✅ Join WhatsApp Group</a>
+<br>
+
+      <a href="https://wa.me/919356671329" class="btn whatsapp">📱 Chat on WhatsApp</a>
+
+      <br>
+      <p>Regards,<br>
+      <b>Team SOULIX</b><br>
+      support@soulix.tech</p>
+    </div>
+<footer style="text-align:center;margin:25px 0;font-size:12px;color:#777;">
+  © 2025 SOULIX — All rights reserved.<br>
+  <div style="margin-top:15px;">
+    <a href="https://instagram.com" style="margin:0 6px;"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" width="22"></a>
+    <a href="https://linkedin.com" style="margin:0 6px;"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" width="22"></a>
+    <a href="https://youtube.com" style="margin:0 6px;"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" width="50"></a>
+  </div>
+</footer>
+</body>
+</html>`
+      : `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment Issue — Action Required</title>
+<style>
+  body { background:#000; margin:0; padding:0; font-family:Arial, sans-serif; color:#fff; }
+  .container { max-width:600px; margin:auto; background:#111; border-radius:12px; padding:30px; }
+  .logo { text-align:center; margin-bottom:25px; }
+  .logo img { width:120px; }
+  .alert { background:#330000; padding:15px; border-left:4px solid #ff4444; border-radius:8px; }
+  ul { margin-top:10px; }
+  .btn { display:block; margin-top:18px; padding:12px; background:#25d366; text-align:center; color:#fff; font-weight:bold; border-radius:6px; text-decoration:none; }
+  .btn.blue { background:#3b82f6; }
+  footer { text-align:center; margin-top:30px; color:#777; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="logo">
+  <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo" />
+</div>
+
+<h2 style="color:#ff4444; text-align:center;">⚠️ Payment Verification Failed</h2>
+<p>Hi <b>${name}</b>,</p>
+
+<div class="alert">
+  ❌ We could not verify your payment for <b>${course}</b>.<br><br>
+  <b>Reason:</b> ${notes || 'Payment verification failed'}
+  <br><br>
+  Common issues:
+  <ul>
+    <li>Incorrect / invalid Transaction ID</li>
+    <li>Payment not received or incomplete</li>
+    <li>Screenshot missing or unclear</li>
+  </ul>
+</div>
+
+<p style="margin-top:22px; font-size:15px; line-height:1.6;">
+Please resend your payment screenshot or transaction proof so we can proceed with your seat booking.<br><br>
+<b>You can reply to this email and attach the screenshot directly,</b><br>or send it on WhatsApp using the button below.
+</p>
+
+<a href="https://wa.me/919356671329" class="btn">📱 Send Screenshot on WhatsApp</a>
+
+<p style="font-size:14px; margin-top:25px; text-align:center;">OR</p>
+
+<a href="mailto:support@soulix.tech?subject=Payment%20Screenshot%20Attached&body=Hi%20Team%20Soulix,%0D%0AHere%20is%20my%20payment%20screenshot%20for%20verification.%0D%0ATransaction%20ID:%20%0D%0AThank%20you!" class="btn blue">✉️ Reply With Screenshot</a>
+
+<p style="margin-top:35px; line-height:1.6;">
+Regards,<br>
+<b>Team SOULIX</b><br>
+support@soulix.tech
+</p>
+
+<footer>
+© 2025 SOULIX — All rights reserved.
+</footer>
+</div>
+</body>
+</html>`;
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({

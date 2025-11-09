@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Test Page — SOULIX</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            width: 120px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        p {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn.approve {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .btn.reject {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .alert {
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+            animation: slideIn 0.3s;
+        }
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+        .alert.show {
+            display: block;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .note {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #78350f;
+        }
+        .note strong {
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://lh3.googleusercontent.com/d/1QP4RpN3F1pc9lIN7lNRgCFYQIU-3skGH" alt="SOULIX Logo">
+        </div>
+        
+        <h1>📧 Email Test Page</h1>
+        <p>Test approval and rejection email templates</p>
+
+        <div class="note">
+            ⚠️ <strong>Note:</strong> Make sure you have added <code>RESEND_API_KEY</code> to Netlify environment variables!
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('approve')">✅ Approval Email</button>
+            <button class="tab" onclick="switchTab('reject')">❌ Rejection Email</button>
+        </div>
+
+        <!-- Approval Form -->
+        <form id="approveForm" class="form-section active" onsubmit="sendEmail(event, 'approve')">
+            <div class="form-group">
+                <label>Student Name</label>
+                <input type="text" name="name" value="Pranav Parate" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" value="test@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Course Name</label>
+                <input type="text" name="course" value="Web Development - ₹199" required>
+            </div>
+            <div class="form-group">
+                <label>Payment Amount</label>
+                <input type="text" name="amount" value="199" required>
+            </div>
+            <div class="form-group">
+                <label>Payment Reference (Optional)</label>
+                <input type="text" name="paymentRef" value="PAY_12345">
+            </div>
+            <div class="form-group">
+                <label>UPI Transaction ID (Optional)</label>
+                <input type="text" name="upiTransactionId" value="UPI123456789">
+            </div>
+            <button type="submit" class="btn approve">✅ Send Approval Email</button>
+        </form>
+
+        <!-- Rejection Form -->
+        <form id="rejectForm" class="form-section" onsubmit="sendEmail(event, 'reject')">
+            <div class="form-group">
+                <label>Student Name</label>
+                <input type="text" name="name" value="Pranav Parate" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" value="test@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Course Name</label>
+                <input type="text" name="course" value="Web Development - ₹199" required>
+            </div>
+            <div class="form-group">
+                <label>Rejection Reason</label>
+                <textarea name="notes" required>Incorrect / invalid Transaction ID. Please resend your payment screenshot for verification.</textarea>
+            </div>
+            <button type="submit" class="btn reject">❌ Send Rejection Email</button>
+        </form>
+
+        <div id="alert" class="alert"></div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show corresponding form
+            document.querySelectorAll('.form-section').forEach(f => f.classList.remove('active'));
+            document.getElementById(tab + 'Form').classList.add('active');
+
+            // Hide alert
+            document.getElementById('alert').classList.remove('show');
+        }
+
+        async function sendEmail(event, action) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const alertBox = document.getElementById('alert');
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Sending...';
+            alertBox.classList.remove('show');
+
+            // Get form data
+            const formData = new FormData(form);
+            const data = {
+                action: action,
+                email: formData.get('email'),
+                name: formData.get('name'),
+                course: formData.get('course')
+            };
+
+            // Add action-specific fields
+            if (action === 'approve') {
+                data.amount = formData.get('amount');
+                data.paymentRef = formData.get('paymentRef');
+                data.upiTransactionId = formData.get('upiTransactionId');
+            } else {
+                data.notes = formData.get('notes');
+            }
+
+            try {
+                // Call Netlify function
+                const response = await fetch('/.netlify/functions/sendDecision', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Success
+                    alertBox.className = 'alert success show';
+                    alertBox.innerHTML = `
+                        ✅ <strong>Email sent successfully!</strong><br>
+                        Sent to: ${data.email}<br>
+                        ${result.emailId ? `Email ID: ${result.emailId}` : ''}
+                    `;
+                    submitBtn.textContent = '✅ Email Sent!';
+                } else {
+                    // Error
+                    alertBox.className = 'alert error show';
+                    alertBox.innerHTML = `
+                        ❌ <strong>Failed to send email</strong><br>
+                        ${result.error || 'Unknown error occurred'}
+                    `;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = action === 'approve' ? '✅ Send Approval Email' : '❌ Send Rejection Email';
+                }
+            } catch (error) {
+                // Network error
+                alertBox.className = 'alert error show';
+                alertBox.innerHTML = `
+                    ❌ <strong>Network error</strong><br>
+                    ${error.message}
+                    <br><br>
+                    Make sure:
+                    <ul style="margin-top:10px; padding-left:20px;">
+                        <li>Netlify function is deployed</li>
+                        <li>RESEND_API_KEY is set in environment variables</li>
+                        <li>You're running on the live Netlify URL (not localhost)</li>
+                    </ul>
+                `;
+                submitBtn.disabled = false;
+                submitBtn.textContent = action === 'approve' ? '✅ Send Approval Email' : '❌ Send Rejection Email';
+            }
+
+            // Re-enable button after 3 seconds if success
+            if (submitBtn.textContent === '✅ Email Sent!') {
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = action === 'approve' ? '✅ Send Approval Email' : '❌ Send Rejection Email';
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

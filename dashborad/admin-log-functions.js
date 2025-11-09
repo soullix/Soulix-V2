@@ -14,17 +14,35 @@ function initAdminLog() {
     }
     
     if (clearLogBtn) {
-        clearLogBtn.addEventListener('click', function() {
-            if (confirm('Are you sure you want to clear all log entries?')) {
+        clearLogBtn.addEventListener('click', async function() {
+            if (confirm('Are you sure you want to clear all log entries? This will delete all logs from the database permanently.')) {
                 const logBody = document.getElementById('adminLogBody');
-                if (logBody) {
-                    logBody.innerHTML = `
-                        <div class="admin-log-empty">
-                            <i class="fas fa-info-circle"></i>
-                            <p>Activity log will appear here</p>
-                        </div>
-                    `;
-                    addAdminLog('info', 'Log Cleared', 'All log entries have been cleared');
+                
+                // Clear logs from Supabase
+                if (window.DataManager) {
+                    const result = await window.DataManager.clearLogs();
+                    
+                    if (result.success) {
+                        console.log('✅ Logs cleared from Supabase');
+                        
+                        // Clear UI
+                        if (logBody) {
+                            logBody.innerHTML = `
+                                <div class="admin-log-empty">
+                                    <i class="fas fa-info-circle"></i>
+                                    <p>Activity log will appear here</p>
+                                </div>
+                            `;
+                        }
+                        
+                        // Add confirmation log
+                        addAdminLog('info', '🗑️ Log Cleared', 'All log entries have been deleted from database');
+                    } else {
+                        console.error('❌ Failed to clear logs:', result.error);
+                        alert('Failed to clear logs: ' + result.error);
+                    }
+                } else {
+                    console.error('❌ DataManager not available');
                 }
             }
         });

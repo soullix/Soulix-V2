@@ -518,6 +518,28 @@ async function getLogs(limit = 50) {
     }
 }
 
+async function clearLogs() {
+    try {
+        // Delete all logs from Supabase
+        const { error } = await supabaseClient
+            .from('admin_logs')
+            .delete()
+            .neq('id', 0); // Delete all records (neq with impossible condition)
+        
+        if (error) {
+            console.error('Error clearing logs:', error);
+            throw error;
+        }
+        
+        console.log('✅ All logs cleared from Supabase');
+        return { success: true };
+        
+    } catch (error) {
+        console.error('Error clearing logs:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 async function saveLoginSession() {
     try {
         const deviceInfo = getDeviceInfo();
@@ -561,6 +583,7 @@ window.DataManager = {
     // Logs
     saveLog: saveLog,
     getLogs: getLogs,
+    clearLogs: clearLogs,
     saveLoginSession: saveLoginSession,
     
     // Status

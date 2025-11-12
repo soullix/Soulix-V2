@@ -39,12 +39,19 @@
   [headers.values]
     Cache-Control = "public, max-age=300"
 
+# Redirect old minimal-dark URLs to main site
+[[redirects]]
+  from = "/minimal-dark/*"
+  to = "/main-site/index.html"
+  status = 301
+  force = true
+
 # Show main site as default homepage
 [[redirects]]
   from = "/"
   to = "/main-site/index.html"
   status = 200
-  force = false
+  force = true
 
 # Dashboard - Admin panel
 [[redirects]]

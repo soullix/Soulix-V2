@@ -39,28 +39,22 @@
   [headers.values]
     Cache-Control = "public, max-age=300"
 
-# Test URL - Access main course selection site at /dashboard
+# Show main site as default homepage
+[[redirects]]
+  from = "/"
+  to = "/main-site/index.html"
+  status = 200
+  force = false
+
+# Dashboard - Admin panel
 [[redirects]]
   from = "/dashboard"
-  to = "/main-site/index.html"
+  to = "/main-site/dashborad/index.html"
   status = 200
 
 [[redirects]]
   from = "/dashboard/*"
-  to = "/main-site/:splat"
-  status = 200
-
-# Show minimal dark theme as default homepage
-[[redirects]]
-  from = "/"
-  to = "/minimal-dark/index.html"
-  status = 200
-  force = false
-
-# All other paths go to minimal dark theme (placeholder)
-[[redirects]]
-  from = "/*"
-  to = "/minimal-dark/index.html"
+  to = "/main-site/dashborad/:splat"
   status = 200
 
 # Function configuration - Optimized
